@@ -1,0 +1,4 @@
+tools/.venv/
+tools/node_modules/
+tools/test-output/
+__pycache__/
