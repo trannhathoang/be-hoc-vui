@@ -231,7 +231,7 @@
     };
     setTimeout(function () {
       if (id !== state.roundId) return;
-      Voice.speak(Games.praise(), function () { setTimeout(advance, 600); });
+      Voice.speak(Games.praise(state.game, state.round), function () { setTimeout(advance, 600); });
     }, 650);
     setTimeout(advance, 5000); // phòng khi giọng đọc không báo kết thúc
   }
@@ -251,7 +251,7 @@
       if (id === state.roundId) state.locked = false;
     }, 900);
     setTimeout(function () {
-      if (id === state.roundId && !state.locked) Voice.speak(Games.retry);
+      if (id === state.roundId && !state.locked) Voice.speak(Games.retry(state.game, state.round));
     }, 1400);
   }
 

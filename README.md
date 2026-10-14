@@ -2,12 +2,19 @@
 
 Game học cho bé 3–5 tuổi, gồm 3 mini-game:
 
-1. **To – Nhỏ / Cao – Thấp / Dài – Ngắn**: hiện 2 đồ vật khác nhau về kích thước, đọc câu hỏi (ví dụ "Bé hãy chọn cái bát to"), bé chạm vào đồ vật đúng.
-2. **Giống hay Khác?**: hiện 2 đồ vật, bé chạm nút **Giống** hoặc **Khác**.
-3. **Tìm 2 đồ vật**: hiện 3 đồ vật (2 cái giống nhau, 1 cái khác), bé chạm vào 2 đồ vật theo câu hỏi "Tìm 2 đồ vật giống nhau / khác nhau".
+1. **Tìm vật** (to – nhỏ, cao – thấp, dài – ngắn): hiện 2 đồ vật khác nhau về kích thước, đọc câu hỏi (ví dụ "Cái bát nào to?"), bé chạm vào đồ vật đúng.
+2. **Giống hay Khác?**: hiện 2 tranh, bé chạm nút **Giống** hoặc **Khác**.
+3. **Tìm 2 tranh**: hiện 3 tranh (2 tranh giống nhau, 1 tranh khác), bé chạm vào 2 tranh theo câu hỏi "Tìm 2 tranh giống nhau / khác nhau".
 
-Trả lời đúng: tiếng *ting-ting*, pháo hoa, thêm 1 ngôi sao, tự sang câu mới.
-Trả lời sai: tiếng *"èèè"*, đồ vật rung lắc, bé được chọn lại.
+Trả lời đúng: tiếng *ting-ting*, pháo hoa, thêm 1 ngôi sao, lời khen, tự sang câu mới.
+Trả lời sai: tiếng *"èèè"*, đồ vật rung lắc, lời động viên, bé được chọn lại.
+
+Câu hỏi, lời khen và lời động viên có nhiều mẫu câu khác nhau (khoảng 300 câu) để bé làm quen với nhiều cách diễn đạt, ví dụ:
+- Câu hỏi: "Bé hãy chọn cái bát to." / "Đâu là cái bát to?" / "Cái bát nào to?" / "Cái bát to ở đâu nhỉ?"
+- Lời khen nhắc lại kiến thức: "Đúng rồi! Đây là cái bát to." / "Đúng rồi! Hai quả bóng này khác màu nhau."
+- Báo sai có gợi ý: "Đây là cái bát nhỏ. Bé tìm cái bát to nhé!" / "Hai tranh này giống nhau mà. Bé tìm hai tranh khác nhau nhé!"
+
+Game không dùng lại mẫu câu vừa nói ngay trước đó.
 Nút loa (góc phải) để nghe lại câu hỏi, nút ngôi nhà (góc trái) để về trang chủ.
 
 ## Vì sao là web app
@@ -19,7 +26,7 @@ Game được làm dưới dạng web app (HTML/JS), chạy trong Safari và có
 
 ## Giọng đọc tiếng Việt
 
-Mọi câu hỏi và lời khen đã được **thu sẵn** bằng giọng nữ miền Bắc *HoaiMy* (thư mục `audio/voice/`), nên đọc giống nhau trên mọi máy và không cần cài thêm gì.
+Mọi câu hỏi, lời khen và lời động viên đã được **thu sẵn** bằng giọng nữ Hà Nội của Google Dịch (thư mục `audio/voice/`), nên đọc giống nhau trên mọi máy và không cần cài thêm gì.
 
 Nếu thiếu tệp thu sẵn (ví dụ vừa thêm câu mới mà chưa thu), game tự dùng giọng đọc của iPhone/iPad. Giọng tiếng Việt của Apple là **Linh**, cũng là giọng Hà Nội. Để tải giọng này:
 
@@ -74,12 +81,12 @@ Sau đó mở địa chỉ https bằng Safari trên từng máy → **Thêm và
 Cài một lần:
 ```powershell
 python -m venv tools/.venv
-tools/.venv/Scripts/pip install edge-tts
+tools/.venv/Scripts/pip install gTTS edge-tts
 npm install --prefix tools
 npx --prefix tools playwright install webkit
 ```
 
-- **Thu lại giọng đọc** (sau khi thêm/sửa câu trong `js/games.js`): `tools/.venv/Scripts/python tools/make-voice.py`. Chỉ những câu mới hoặc đã sửa mới được thu lại. Muốn đổi sang giọng nam, sửa `VOICE` thành `vi-VN-NamMinhNeural` trong tệp đó.
+- **Thu lại giọng đọc** (sau khi thêm/sửa câu trong `js/games.js`): `tools/.venv/Scripts/python tools/make-voice.py`. Chỉ những câu mới hoặc đã sửa mới được thu lại. Muốn đổi giọng, sửa `VOICE` trong tệp đó (ví dụ `vi-VN-NamMinhNeural` là giọng nam của Microsoft). Để nghe thử và so sánh các giọng: `tools/.venv/Scripts/python tools/voice-samples.py` rồi mở `tools/voice-samples/index.html`.
 - **Chạy kiểm tra tự động**: `npm test --prefix tools`. Ảnh chụp từng màn hình được lưu trong `tools/test-output/`.
   Lưu ý: bản WebKit của Playwright trên Windows không có Web Audio, nên bài kiểm tra bỏ qua phần phát giọng thu sẵn. Safari thật trên iPhone/iPad có Web Audio.
 

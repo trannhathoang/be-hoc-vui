@@ -152,6 +152,12 @@ async function main() {
     });
 
     await page.goto(base);
+    // Ghi lại mọi câu game đọc ra để đối chiếu với giọng thu sẵn.
+    await page.evaluate(() => {
+      window.__spoken = [];
+      const speak = Voice.speak;
+      Voice.speak = (t, cb) => { window.__spoken.push(t); return speak(t, cb); };
+    });
     await page.waitForTimeout(1500);
     await page.screenshot({ path: path.join(OUT, `${dev.name} - home.png`) });
     await checkInside(page, '.menu-card', 'Trang chủ — 3 thẻ trò chơi');
@@ -159,6 +165,12 @@ async function main() {
     await playGame(page, 'opposite', 'Trò 1 (trái nghĩa)', dev.name);
     await playGame(page, 'samediff', 'Trò 2 (giống/khác)', dev.name);
     await playGame(page, 'findpair', 'Trò 3 (tìm 2 đồ vật)', dev.name);
+
+    const missing = await page.evaluate(() => fetch('audio/voice/manifest.json').then((r) => r.json())
+      .then((m) => window.__spoken.filter((t) => !m[t])));
+    const spokenCount = await page.evaluate(() => window.__spoken.length);
+    check(spokenCount > 0 && missing.length === 0,
+      `Mọi câu đã đọc (${spokenCount} câu) đều có giọng thu sẵn` + (missing.length ? ': thiếu ' + missing.join(' | ') : ''));
 
     const total = await page.evaluate(() => fetch('audio/voice/manifest.json').then((r) => r.json()).then((m) => Object.keys(m).length));
     const hasWebAudio = await page.evaluate(() => !!(window.AudioContext || window.webkitAudioContext));

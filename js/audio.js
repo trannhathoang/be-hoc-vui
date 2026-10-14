@@ -252,8 +252,11 @@ var Tts = (function () {
  * phát qua Web Audio để không bị iOS chặn; câu nào chưa có tệp thì dùng Tts. */
 var Voice = (function () {
   var DIR = 'audio/voice/';
+  var MAX_DECODED = 24; // giữ ít câu đã giải mã để máy cũ (iPad Air, RAM 1 GB) không hết bộ nhớ
   var manifest = null; // câu -> tên tệp
-  var buffers = {};    // tên tệp -> AudioBuffer
+  var raw = {};        // tên tệp -> ArrayBuffer mp3 (nhỏ, giữ hết)
+  var buffers = {};    // tên tệp -> AudioBuffer đã giải mã (giới hạn MAX_DECODED)
+  var order = [];      // thứ tự dùng gần đây của buffers
   var waiting = {};    // tên tệp -> các hàm chờ tải xong
   var source = null;   // đoạn đang phát
   var token = 0;       // tăng mỗi lần speak/stop để bỏ qua kết quả tải đã cũ
@@ -274,31 +277,48 @@ var Voice = (function () {
     if (p && p.catch) p.catch(function () { once(null); });
   }
 
+  function remember(file, buf) {
+    var i = order.indexOf(file);
+    if (i >= 0) order.splice(i, 1);
+    order.push(file);
+    buffers[file] = buf;
+    while (order.length > MAX_DECODED) delete buffers[order.shift()];
+  }
+
+  function fetchRaw(file, cb) {
+    if (raw[file]) { cb(raw[file]); return; }
+    fetch(DIR + file)
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then(function (data) { raw[file] = data; cb(data); })
+      .catch(function () { cb(null); });
+  }
+
+  // Lấy AudioBuffer của một câu (tải + giải mã nếu cần).
   function load(file, cb) {
-    if (buffers[file]) { cb(buffers[file]); return; }
+    if (buffers[file]) { remember(file, buffers[file]); cb(buffers[file]); return; }
     if (waiting[file]) { waiting[file].push(cb); return; }
     waiting[file] = [cb];
     var finish = function (buf) {
-      if (buf) buffers[file] = buf;
+      if (buf) remember(file, buf);
       var list = waiting[file];
       delete waiting[file];
       list.forEach(function (f) { f(buf); });
     };
     if (!Sound.context()) { finish(null); return; }
-    fetch(DIR + file)
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
-      .then(function (data) { decode(data, finish); })
-      .catch(function () { finish(null); });
+    fetchRaw(file, function (data) {
+      // decodeAudioData "lấy mất" ArrayBuffer truyền vào, nên giải mã một bản sao.
+      if (data) decode(data.slice(0), finish); else finish(null);
+    });
   }
 
-  // Tải lần lượt từng tệp để máy cũ (iPad Air) không bị giật.
+  // Tải trước (chưa giải mã) mọi tệp, lần lượt từng tệp để máy cũ không bị giật.
+  // Nhờ vậy service worker cũng lưu đủ để chơi offline.
   function preloadAll() {
     var files = Object.keys(manifest).map(function (k) { return manifest[k]; });
     var i = 0;
-    var next = function () { if (i < files.length) load(files[i++], next); };
+    var next = function () { if (i < files.length) fetchRaw(files[i++], next); };
     next();
   }
-
   function play(buf, onEnd) {
     var c = Sound.context();
     var src = c.createBufferSource();

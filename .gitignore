@@ -2,3 +2,5 @@ tools/.venv/
 tools/node_modules/
 tools/test-output/
 __pycache__/
+tools/piper-voices/
+tools/voice-samples/

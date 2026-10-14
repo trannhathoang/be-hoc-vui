@@ -2,7 +2,7 @@
 
 Cách dùng (từ thư mục gốc của game):
     python -m venv tools/.venv
-    tools/.venv/Scripts/pip install edge-tts
+    tools/.venv/Scripts/pip install gTTS edge-tts
     tools/.venv/Scripts/python tools/make-voice.py
 
 Kết quả: audio/voice/*.mp3 và audio/voice/manifest.json (câu -> tệp).
@@ -14,16 +14,16 @@ import json
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
-
-import edge_tts
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "audio" / "voice"
 
-VOICE = "vi-VN-HoaiMyNeural"  # giọng nữ miền Bắc; giọng nam: vi-VN-NamMinhNeural
-RATE = "-12%"                 # đọc chậm hơn một chút cho bé dễ nghe
-PITCH = "+8Hz"                # cao giọng nhẹ cho vui tai
+# "google": giọng nữ Hà Nội của Google Dịch (gói gTTS) — giọng đang dùng.
+# Hoặc tên giọng Microsoft Edge, ví dụ "vi-VN-NamMinhNeural" (gói edge-tts).
+VOICE = "google"
+TEMPO = 0.95  # < 1 là đọc chậm lại, cho bé dễ nghe
 
 
 def list_phrases():
@@ -36,19 +36,37 @@ def list_phrases():
 
 def file_name(text):
     # Tên tệp phụ thuộc cả câu lẫn giọng đọc: đổi giọng thì tự thu lại.
-    key = f"{VOICE}|{RATE}|{PITCH}|{text}".encode("utf-8")
+    key = f"{VOICE}|{TEMPO}|{text}".encode("utf-8")
     return hashlib.sha1(key).hexdigest()[:12] + ".mp3"
 
 
+async def synthesize(text, path):
+    if VOICE == "google":
+        from gtts import gTTS
+        for attempt in range(5):
+            try:
+                gTTS(text, lang="vi").save(str(path))
+                return
+            except Exception as e:  # Google có thể tạm chặn khi gửi nhiều yêu cầu liền
+                if attempt == 4:
+                    raise
+                wait = 5 * (attempt + 1)
+                print(f"    lỗi ({e}); thử lại sau {wait} giây")
+                time.sleep(wait)
+    else:
+        import edge_tts
+        await edge_tts.Communicate(text, VOICE).save(str(path))
+
+
 def polish(raw, final):
-    """Cắt khoảng lặng hai đầu, cân bằng âm lượng, xuất mp3 mono."""
+    """Cắt khoảng lặng hai đầu, chỉnh tốc độ, cân bằng âm lượng, xuất mp3 mono."""
     if not shutil.which("ffmpeg"):
         raw.replace(final)
         return
     trim = "silenceremove=start_periods=1:start_threshold=-45dB"
     subprocess.run([
         "ffmpeg", "-y", "-loglevel", "error", "-i", str(raw),
-        "-af", f"{trim},areverse,{trim},areverse,loudnorm=I=-16:TP=-1.5:LRA=11",
+        "-af", f"{trim},areverse,{trim},areverse,atempo={TEMPO},loudnorm=I=-16:TP=-1.5:LRA=11",
         "-ac", "1", "-ar", "44100", "-b:a", "64k", str(final),
     ], check=True)
     raw.unlink()
@@ -67,10 +85,12 @@ async def main():
         if final.exists() and not redo_all:
             continue
         raw = OUT / ("_raw_" + name)
-        await edge_tts.Communicate(text, VOICE, rate=RATE, pitch=PITCH).save(str(raw))
+        await synthesize(text, raw)
         polish(raw, final)
         made += 1
-        print("  +", text)
+        print(f"  + [{made}] {text}")
+        if VOICE == "google":
+            time.sleep(0.3)  # nhẹ tay với máy chủ Google
 
     # Xoá tệp cũ không còn dùng.
     used = set(manifest.values())

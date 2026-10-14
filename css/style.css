@@ -109,6 +109,7 @@ button {
   color: #fff;
   width: 40vmin;
   height: 44vmin;
+  overflow: hidden;
   -webkit-transition: -webkit-transform 0.12s;
   transition: transform 0.12s;
 }
@@ -116,16 +117,21 @@ button {
 .menu-card.c1 { background: #ff8a5b; }
 .menu-card.c2 { background: #4cc38a; }
 .menu-card.c3 { background: #8b6cf0; }
+/* Khung ảnh chiếm phần còn lại sau nhãn chữ, không bao giờ tràn khỏi thẻ */
 .menu-art {
   display: block;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  height: 62%;
   background: rgba(255, 255, 255, 0.92);
   border-radius: 3.5vmin;
 }
 .menu-art svg { width: 100%; height: 100%; display: block; }
 .menu-label {
   display: block;
+  -webkit-flex: none;
+  flex: none;
   margin-top: 1.4vmin;
   font-size: 4.2vmin;
   font-weight: 800;
@@ -142,7 +148,7 @@ button {
     height: 33vw;
     height: calc(min(33vw, 62vh));
   }
-  .menu-label { font-size: 5vmin; }
+  .menu-label { font-size: 6vmin; }
 }
 
 /* Màn hình dọc (điện thoại, iPad): 3 thẻ xếp dọc, to hơn */
@@ -154,8 +160,20 @@ button {
     flex-direction: row;
     margin: 1.2vh 0;
   }
-  .menu-art { width: 45%; height: 100%; }
-  .menu-label { width: 55%; margin: 0 0 0 3vw; font-size: 6vw; }
+  .menu-art {
+    -webkit-flex: 0 0 45%;
+    flex: 0 0 45%;
+    width: auto;
+    -webkit-align-self: stretch;
+    align-self: stretch;
+  }
+  .menu-label {
+    -webkit-flex: 1 1 0;
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0 0 0 3vw;
+    font-size: 7vw;
+  }
 }
 
 .voice-warning {

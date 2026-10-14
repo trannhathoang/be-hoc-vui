@@ -1,5 +1,5 @@
 /* Lưu sẵn toàn bộ game để chơi được khi không có mạng (chỉ hoạt động qua https). */
-var CACHE = 'be-hoc-vui-v2';
+var CACHE = 'be-hoc-vui-v3';
 var FILES = [
   './', './index.html', './manifest.json', './css/style.css',
   './js/audio.js', './js/art.js', './js/fx.js', './js/games.js', './js/app.js',
