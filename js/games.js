@@ -50,8 +50,35 @@ var Games = (function () {
     { name: 'ngôi nhà', words: ['cao', 'thấp'], colors: [null],
       draw: function (a) { return Art.building(a ? 6 : 2); } },
     { name: 'cây nến', words: ['cao', 'thấp'], colors: [C.pink, C.blue, C.purple],
-      draw: function (a, c) { return Art.candle(a ? 130 : 40, c); } }
+      draw: function (a, c) { return Art.candle(a ? 130 : 40, c); } },
+    { name: 'cái áo', words: ['mới', 'cũ'], colors: [C.blue, C.red, C.green, C.purple],
+      draw: function (a, c) { return Art.shirt(c, !a); } },
+    { name: 'con mèo', words: ['béo', 'gầy'], colors: [null],
+      draw: function (a) { return Art.cat(a); } },
+    { name: 'con lợn', words: ['sạch', 'bẩn'], colors: [null],
+      draw: function (a) { return Art.pig(!a); } },
+    { name: 'cốc nước', words: ['nóng', 'lạnh'], colors: [null],
+      draw: function (a) { return Art.cup(a); } },
+    { name: 'quyển sách', words: ['dày', 'mỏng'], colors: [C.red, C.blue, C.green, C.purple],
+      draw: function (a, c) { return Art.book(c, a); } },
+    // link: chèn sau "nào" cho tự nhiên — "Bức tranh nào là ban đêm?"
+    { name: 'bức tranh', words: ['ban ngày', 'ban đêm'], link: 'là ', colors: [null],
+      draw: function (a) { return Art.scene(a); } },
+    { name: 'vật', words: ['cứng', 'mềm'], colors: [null],
+      draw: function (a) { return a ? pick([Art.rock, Art.brick])() : pick([Art.pillow, Art.teddy])(); } },
+    { name: 'vật', words: ['nặng', 'nhẹ'], colors: [null],
+      draw: function (a) { return a ? pick([Art.dumbbell, Art.elephant])() : pick([Art.feather, function () { return Art.balloon(C.red); }])(); } }
   ];
+
+  // Nhóm theo cặp tính từ (to–nhỏ có 4 đồ vật, ngày–đêm có 1...) để chọn cặp trước,
+  // nhờ vậy mọi cặp xuất hiện đều nhau.
+  var PAIRS = [];
+  OPPOSITES.forEach(function (item) {
+    var key = item.words.join('-');
+    var g = PAIRS.filter(function (p) { return p.key === key; })[0];
+    if (!g) { g = { key: key, items: [] }; PAIRS.push(g); }
+    g.items.push(item);
+  });
 
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
@@ -68,14 +95,14 @@ var Games = (function () {
   // Nhiều cách nói cho cùng một ý để bé làm quen với cách diễn đạt khác nhau.
   // Giọng miền Bắc: dùng "nhé", "nhỉ", "nào", "đấy".
 
-  // --- Trò 1: n = tên đồ vật ("cái bát"), w = tính từ ("to") ---
+  // --- Trò 1: n = tên đồ vật ("cái bát"), w = tính từ ("to"), l = chữ nối sau "nào" ("là " hoặc "") ---
   var Q_OPPOSITE = [
     function (n, w) { return 'Bé hãy chọn ' + n + ' ' + w + '.'; },
     function (n, w) { return 'Đâu là ' + n + ' ' + w + '?'; },
-    function (n, w) { return cap(n) + ' nào ' + w + '?'; },
+    function (n, w, l) { return cap(n) + ' nào ' + l + w + '?'; },
     function (n, w) { return 'Bé chạm vào ' + n + ' ' + w + ' nhé!'; },
     function (n, w) { return cap(n) + ' ' + w + ' ở đâu nhỉ?'; },
-    function (n, w) { return 'Bé tìm xem ' + n + ' nào ' + w + ' nhé!'; }
+    function (n, w, l) { return 'Bé tìm xem ' + n + ' nào ' + l + w + ' nhé!'; }
   ];
   var PRAISE_OPPOSITE = [
     function (n, w) { return 'Đúng rồi! Đây là ' + n + ' ' + w + '.'; },
@@ -146,16 +173,18 @@ var Games = (function () {
   var opposite = {
     key: 'opposite',
     make: function (prev) {
-      var item;
-      do { item = pick(OPPOSITES); } while (prev && prev.item === item);
+      var group;
+      do { group = pick(PAIRS); } while (prev && prev.group === group);
+      var item = pick(group.items);
       var color = pick(item.colors);
       var askFirst = Math.random() < 0.5;
       var word = item.words[askFirst ? 0 : 1];
       var options = shuffle([true, false]).map(function (isFirst) {
         return { svg: item.draw(isFirst, color), correct: isFirst === askFirst };
       });
-      var speech = vary('q1', Q_OPPOSITE)(item.name, word);
+      var speech = vary('q1', Q_OPPOSITE)(item.name, word, item.link || '');
       return {
+        group: group,
         item: item,
         word: word,
         otherWord: item.words[askFirst ? 1 : 0],
@@ -198,6 +227,25 @@ var Games = (function () {
     return thing(t, pick(t.colors));
   }
 
+  // Hai tranh khác `base` và khác nhau. Thường cùng loại khác màu (khó hơn),
+  // đôi khi khác loại; màu không được dễ nhầm với nhau.
+  function twoOthers(base) {
+    var t = base.type;
+    if (Math.random() < 0.7) {
+      var ok = function (c, used) {
+        return used.every(function (u) { return c !== u && !confusable(c, u); });
+      };
+      var c1 = t.colors.filter(function (c) { return ok(c, [base.color]); });
+      if (c1.length) {
+        var b = pick(c1);
+        var c2 = t.colors.filter(function (c) { return ok(c, [base.color, b]); });
+        if (c2.length) return [thing(t, b), thing(t, pick(c2))];
+      }
+    }
+    var others = shuffle(THINGS.filter(function (x) { return x !== t; }));
+    return [thing(others[0], pick(others[0].colors)), thing(others[1], pick(others[1].colors))];
+  }
+
   function signature(items) {
     return items.map(function (x) { return x.type.key + x.color; }).join('|');
   }
@@ -238,15 +286,21 @@ var Games = (function () {
       do {
         var t = pick(THINGS);
         var a = thing(t, pick(t.colors));
-        var odd = differentFrom(a, 0.7);
-        odd.odd = true;
-        var items = shuffle([a, thing(t, a.color), odd]);
         var mode = Math.random() < 0.6 ? 'same' : 'diff';
+        var items;
+        if (mode === 'same') {
+          // Đúng 1 cặp giống nhau; 2 tranh còn lại khác cặp đó và khác nhau.
+          items = [a, thing(t, a.color)].concat(twoOthers(a));
+        } else {
+          // 3 tranh giống nhau và 1 tranh lẻ.
+          items = [a, thing(t, a.color), thing(t, a.color), differentFrom(a, 0.7)];
+        }
         r = {
           kind: 'pick2',
           mode: mode,
+          cols: 2, // luôn xếp khung 2 x 2
           word: mode === 'same' ? 'giống nhau' : 'khác nhau',
-          options: items,
+          options: shuffle(items),
           sig: mode + signature(items)
         };
       } while (prev && prev.sig === r.sig && ++tries < 10);
@@ -281,7 +335,7 @@ var Games = (function () {
     OPPOSITES.forEach(function (item) {
       [0, 1].forEach(function (i) {
         var w = item.words[i], w2 = item.words[1 - i];
-        each(Q_OPPOSITE, [item.name, w]);
+        each(Q_OPPOSITE, [item.name, w, item.link || '']);
         each(PRAISE_OPPOSITE, [item.name, w]);
         each(RETRY_OPPOSITE, [item.name, w, w2]);
       });

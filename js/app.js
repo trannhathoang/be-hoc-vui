@@ -58,11 +58,12 @@
       { inner: Art.apple(Art.COLORS.red), x: 8, y: 16, s: 0.84 },
       { inner: Art.apple(Art.COLORS.red), x: 184, y: 16, s: 0.84 }
     ]);
-    $('art-findpair').innerHTML = Art.compose(540, [
-      { inner: Art.star(Art.COLORS.yellow), x: 8, y: 12, s: 0.86 },
-      { inner: Art.star(Art.COLORS.blue), x: 188, y: 12, s: 0.86 },
-      { inner: Art.star(Art.COLORS.yellow), x: 368, y: 12, s: 0.86 }
-    ]);
+    $('art-findpair').innerHTML = Art.compose(216, [
+      { inner: Art.star(Art.COLORS.yellow), x: 8, y: 4, s: 0.5 },
+      { inner: Art.star(Art.COLORS.blue), x: 108, y: 4, s: 0.5 },
+      { inner: Art.star(Art.COLORS.green), x: 8, y: 104, s: 0.5 },
+      { inner: Art.star(Art.COLORS.yellow), x: 108, y: 104, s: 0.5 }
+    ], 208);
   }
 
   function checkVoice() {
@@ -151,7 +152,8 @@
     grid.style.display = '';
     var m = Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.015) + 2;
     var best = { size: 0, cols: n };
-    for (var cols = 1; cols <= n; cols++) {
+    // Lượt chơi có thể ép số cột (trò 3 luôn xếp 2 x 2).
+    for (var cols = r.cols || 1; cols <= (r.cols || n); cols++) {
       var rows = Math.ceil(n / cols);
       var size = Math.floor(Math.min(W / cols, H / rows) - 2 * m);
       if (size > best.size) best = { size: size, cols: cols };

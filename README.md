@@ -2,14 +2,14 @@
 
 Game học cho bé 3–5 tuổi, gồm 3 mini-game:
 
-1. **Tìm vật** (to – nhỏ, cao – thấp, dài – ngắn): hiện 2 đồ vật khác nhau về kích thước, đọc câu hỏi (ví dụ "Cái bát nào to?"), bé chạm vào đồ vật đúng.
+1. **Tìm vật**: hiện 2 tranh của cùng một đồ vật ở hai trạng thái trái ngược, đọc câu hỏi (ví dụ "Cái bát nào to?"), bé chạm vào tranh đúng. Có 11 cặp từ: to – nhỏ, cao – thấp, dài – ngắn, mới – cũ, béo – gầy, sạch – bẩn, nóng – lạnh, dày – mỏng, ban ngày – ban đêm, cứng – mềm, nặng – nhẹ. Mỗi lượt chọn ngẫu nhiên một cặp (không lặp cặp liền nhau).
 2. **Giống hay Khác?**: hiện 2 tranh, bé chạm nút **Giống** hoặc **Khác**.
-3. **Tìm 2 tranh**: hiện 3 tranh (2 tranh giống nhau, 1 tranh khác), bé chạm vào 2 tranh theo câu hỏi "Tìm 2 tranh giống nhau / khác nhau".
+3. **Tìm 2 tranh**: hiện 4 tranh xếp 2 × 2, bé chạm vào 2 tranh theo câu hỏi. "Tìm 2 tranh giống nhau": chỉ có đúng một cặp giống nhau. "Tìm 2 tranh khác nhau": 3 tranh giống nhau và 1 tranh lẻ.
 
 Trả lời đúng: tiếng *ting-ting*, pháo hoa, thêm 1 ngôi sao, lời khen, tự sang câu mới.
 Trả lời sai: tiếng *"èèè"*, đồ vật rung lắc, lời động viên, bé được chọn lại.
 
-Câu hỏi, lời khen và lời động viên có nhiều mẫu câu khác nhau (khoảng 300 câu) để bé làm quen với nhiều cách diễn đạt, ví dụ:
+Câu hỏi, lời khen và lời động viên có nhiều mẫu câu khác nhau (khoảng 450 câu) để bé làm quen với nhiều cách diễn đạt, ví dụ:
 - Câu hỏi: "Bé hãy chọn cái bát to." / "Đâu là cái bát to?" / "Cái bát nào to?" / "Cái bát to ở đâu nhỉ?"
 - Lời khen nhắc lại kiến thức: "Đúng rồi! Đây là cái bát to." / "Đúng rồi! Hai quả bóng này khác màu nhau."
 - Báo sai có gợi ý: "Đây là cái bát nhỏ. Bé tìm cái bát to nhé!" / "Hai tranh này giống nhau mà. Bé tìm hai tranh khác nhau nhé!"

@@ -81,10 +81,26 @@ function answerFor(right) {
   if (r.kind === 'pick1') {
     return [r.options.findIndex((o) => o.correct === right)];
   }
-  const oddIdx = r.options.findIndex((o) => o.odd);
-  const others = [0, 1, 2].filter((i) => i !== oddIdx);
+  // Tìm một cặp tranh giống nhau (cùng loại, cùng màu) hoặc khác nhau, tuỳ đáp án cần.
+  const key = (o) => o.type.key + o.color;
   const wantSame = (r.mode === 'same') === right;
-  return wantSame ? others : [oddIdx, others[0]];
+  for (let i = 0; i < r.options.length; i++) {
+    for (let j = i + 1; j < r.options.length; j++) {
+      if ((key(r.options[i]) === key(r.options[j])) === wantSame) return [i, j];
+    }
+  }
+  return null;
+}
+
+// Trò 3: 4 thẻ phải xếp thành 2 hàng x 2 cột.
+async function checkGrid2x2(page, label) {
+  const pos = await page.$$eval('#stage .card', (els) => els.map((e) => {
+    const b = e.getBoundingClientRect();
+    return [Math.round(b.left), Math.round(b.top)];
+  }));
+  const cols = new Set(pos.map((p) => p[0])).size;
+  const rows = new Set(pos.map((p) => p[1])).size;
+  check(pos.length === 4 && cols === 2 && rows === 2, `${label} — 4 tranh xếp 2x2 (${rows} hàng, ${cols} cột)`);
 }
 
 async function tapCards(page, idxs) {
@@ -94,9 +110,10 @@ async function tapCards(page, idxs) {
 async function playGame(page, key, label, dev) {
   await page.tap(`.menu-card[data-game="${key}"]`);
   await page.waitForFunction(() => KidGame.state.round, null, { timeout: 3000 });
-  await page.waitForTimeout(600); // chờ hiệu ứng hiện thẻ
+  await page.waitForTimeout(900); // chờ hiệu ứng hiện thẻ
   await checkInside(page, '#stage .card', `${label} — thẻ`);
   if (key === 'samediff') await checkInside(page, '.answer-btn', `${label} — nút Giống/Khác`);
+  if (key === 'findpair') await checkGrid2x2(page, label);
   await page.screenshot({ path: path.join(OUT, `${dev} - ${key}.png`) });
 
   // Trả lời sai: không được sao, được chọn lại.
@@ -164,7 +181,7 @@ async function main() {
 
     await playGame(page, 'opposite', 'Trò 1 (trái nghĩa)', dev.name);
     await playGame(page, 'samediff', 'Trò 2 (giống/khác)', dev.name);
-    await playGame(page, 'findpair', 'Trò 3 (tìm 2 đồ vật)', dev.name);
+    await playGame(page, 'findpair', 'Trò 3 (tìm 2 tranh)', dev.name);
 
     const missing = await page.evaluate(() => fetch('audio/voice/manifest.json').then((r) => r.json())
       .then((m) => window.__spoken.filter((t) => !m[t])));
