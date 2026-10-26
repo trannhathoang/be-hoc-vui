@@ -63,55 +63,26 @@ var Sound = (function () {
     bell(t + 0.2, 2093, 0.45);  // ting
   }
 
-  // Tiếng "èèè" dài: tổng hợp nguyên âm /ɛ/ (formant) với cao độ đi xuống như dấu huyền.
-  function eh() {
+  // Tiếng báo sai: một tiếng "bộp" trầm, ngắn, nhỏ — cố ý nhạt để bé không thích chọn sai.
+  function thud() {
     if (!ensureContext()) return;
-    var t = ctx.currentTime + 0.02;
-    var dur = 1.3;
-
-    var src = ctx.createOscillator();
-    src.type = 'sawtooth';
-    src.frequency.setValueAtTime(230, t);
-    src.frequency.linearRampToValueAtTime(205, t + 0.25);
-    src.frequency.exponentialRampToValueAtTime(150, t + dur);
-
-    // Rung nhẹ cho giống giọng người
-    var vib = ctx.createOscillator();
-    var vibGain = ctx.createGain();
-    vib.frequency.value = 5.5;
-    vibGain.gain.value = 4;
-    vib.connect(vibGain);
-    vibGain.connect(src.frequency);
-
-    var env = ctx.createGain();
-    env.gain.setValueAtTime(0.0001, t);
-    env.gain.exponentialRampToValueAtTime(1, t + 0.06);
-    env.gain.setValueAtTime(1, t + dur - 0.25);
-    env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-
-    var out = ctx.createGain();
-    out.gain.value = 0.55;
-
-    // Các formant của nguyên âm "e" mở
-    var formants = [[600, 8, 1], [1850, 12, 0.6], [2550, 14, 0.25]];
-    for (var i = 0; i < formants.length; i++) {
-      var bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass';
-      bp.frequency.value = formants[i][0];
-      bp.Q.value = formants[i][1];
-      var fg = ctx.createGain();
-      fg.gain.value = formants[i][2] * 3;
-      env.connect(bp);
-      bp.connect(fg);
-      fg.connect(out);
-    }
-    src.connect(env);
-    out.connect(master);
-
-    src.start(t);
-    vib.start(t);
-    src.stop(t + dur + 0.05);
-    vib.stop(t + dur + 0.05);
+    var t = ctx.currentTime + 0.01;
+    var osc = ctx.createOscillator();
+    var lp = ctx.createBiquadFilter();
+    var g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(110, t + 0.18);
+    lp.type = 'lowpass';
+    lp.frequency.value = 600;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.25, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    osc.connect(lp);
+    lp.connect(g);
+    g.connect(master);
+    osc.start(t);
+    osc.stop(t + 0.25);
   }
 
   // Tiếng "bụp" nhỏ khi chọn một đồ vật.
@@ -152,7 +123,7 @@ var Sound = (function () {
   }
 
   return {
-    unlock: unlock, ting: ting, eh: eh, pop: pop, crackle: crackle,
+    unlock: unlock, ting: ting, thud: thud, pop: pop, crackle: crackle,
     context: ensureContext,
     output: function () { ensureContext(); return master; }
   };

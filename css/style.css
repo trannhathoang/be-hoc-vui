@@ -276,7 +276,18 @@ button {
 .card.tappable.pressed { -webkit-transform: scale(0.96); transform: scale(0.96); }
 .card.selected { border-color: #ffc300; background: #fffbe6; -webkit-transform: scale(1.04); transform: scale(1.04); }
 .card.correct { border-color: #3dcc6b; background: #effff3; }
-.card.wrong { border-color: #ff6b6b; -webkit-animation: shake 0.5s; animation: shake 0.5s; }
+/* Trả lời sai: chỉ mờ đi nhẹ, không rung lắc (rung lắc làm bé thích chọn sai). */
+.card.wrong { border-color: #d5dae2; opacity: 0.45; }
+
+/* Đang đọc câu hỏi / lời gợi ý: tranh và nút mờ đi, chưa chạm được; nút loa nhấp nháy. */
+.card, .answer-btn {
+  -webkit-transition: opacity 0.3s, -webkit-transform 0.15s, border-color 0.15s;
+  transition: opacity 0.3s, transform 0.15s, border-color 0.15s;
+}
+#play.listening .card:not(.correct), #play.listening .answer-btn { opacity: 0.55; }
+#play.listening #btn-speak { -webkit-animation: pulse 1s ease-in-out infinite; animation: pulse 1s ease-in-out infinite; }
+@-webkit-keyframes pulse { 50% { -webkit-transform: scale(1.12); } }
+@keyframes pulse { 50% { transform: scale(1.12); } }
 
 .vs {
   font-size: 9vmin;
@@ -316,7 +327,7 @@ button {
 .answer-btn.same { background: #3dcc6b; }
 .answer-btn.diff { background: #ff6b6b; }
 .answer-btn.pressed { -webkit-transform: scale(0.94); transform: scale(0.94); }
-.answer-btn.wrong { -webkit-animation: shake 0.5s; animation: shake 0.5s; }
+.answer-btn.wrong { opacity: 0.45; }
 .answer-sign {
   display: inline-block;
   margin-right: 2vmin;
@@ -338,20 +349,6 @@ button {
 }
 
 /* ---------- Hiệu ứng ---------- */
-@-webkit-keyframes shake {
-  0%, 100% { -webkit-transform: translateX(0); }
-  20% { -webkit-transform: translateX(-14px); }
-  40% { -webkit-transform: translateX(12px); }
-  60% { -webkit-transform: translateX(-9px); }
-  80% { -webkit-transform: translateX(6px); }
-}
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-14px); }
-  40% { transform: translateX(12px); }
-  60% { transform: translateX(-9px); }
-  80% { transform: translateX(6px); }
-}
 @-webkit-keyframes popin {
   0% { -webkit-transform: scale(0.6); opacity: 0; }
   100% { -webkit-transform: scale(1); opacity: 1; }

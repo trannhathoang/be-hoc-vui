@@ -7,7 +7,8 @@ Game học cho bé 3–5 tuổi, gồm 3 mini-game:
 3. **Tìm 2 tranh**: hiện 4 tranh xếp 2 × 2, bé chạm vào 2 tranh theo câu hỏi. "Tìm 2 tranh giống nhau": chỉ có đúng một cặp giống nhau. "Tìm 2 tranh khác nhau": 3 tranh giống nhau và 1 tranh lẻ.
 
 Trả lời đúng: tiếng *ting-ting*, pháo hoa, thêm 1 ngôi sao, lời khen, tự sang câu mới.
-Trả lời sai: tiếng *"èèè"*, đồ vật rung lắc, lời động viên, bé được chọn lại.
+Trả lời sai: tiếng "bộp" nhỏ, tranh mờ đi, game đọc lời gợi ý; bé chỉ chọn lại được khi đọc xong.
+Trong lúc game đọc câu hỏi, tranh hơi mờ và chưa chạm được, để bé nghe hết câu rồi mới chọn (tránh chọn bừa).
 
 Câu hỏi, lời khen và lời động viên có nhiều mẫu câu khác nhau (khoảng 450 câu) để bé làm quen với nhiều cách diễn đạt, ví dụ:
 - Câu hỏi: "Bé hãy chọn cái bát to." / "Đâu là cái bát to?" / "Cái bát nào to?" / "Cái bát to ở đâu nhỉ?"
@@ -65,7 +66,7 @@ Sau đó mở địa chỉ https bằng Safari trên từng máy → **Thêm và
 | --- | --- |
 | `index.html` | Khung trang: trang chủ và màn hình chơi |
 | `css/style.css` | Giao diện, tự co giãn theo màn hình dọc/ngang, điện thoại/iPad |
-| `js/audio.js` | Tiếng ting-ting, tiếng "è", pháo nổ (tạo bằng Web Audio) và giọng đọc tiếng Việt |
+| `js/audio.js` | Tiếng ting-ting, tiếng "bộp" khi sai, pháo nổ (tạo bằng Web Audio) và giọng đọc tiếng Việt |
 | `js/art.js` | Hình vẽ các đồ vật (SVG): bát, bóng, táo, cá, bút chì, thước, sâu, cây, nhà, nến, ô tô, ngôi sao, hoa, bóng bay |
 | `js/fx.js` | Hiệu ứng pháo hoa |
 | `js/games.js` | Nội dung và luật của 3 mini-game, câu hỏi tiếng Việt |

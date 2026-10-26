@@ -8,6 +8,7 @@
     roundId: 0,
     stars: 0,
     locked: false,
+    celebrating: false, // đang khen sau câu trả lời đúng
     selected: [] // dùng cho mini-game 3
   };
 
@@ -97,6 +98,7 @@
     state.game = null;
     state.roundId++;
     Voice.stop();
+    $('play').classList.remove('listening');
     showScreen('home');
     checkVoice();
   }
@@ -104,15 +106,31 @@
   function nextRound() {
     if (!state.game) return;
     state.roundId++;
-    state.locked = false;
+    state.celebrating = false;
     state.selected = [];
     state.round = state.game.make(state.round);
     render();
-    speakQuestion();
+    listen(state.round.speech);
+  }
+
+  // Đọc một câu và khoá chạm cho tới khi đọc xong (tranh mờ đi trong lúc đó),
+  // để bé phải nghe hết câu hỏi / lời gợi ý rồi mới chọn — chọn bừa không được gì.
+  var listenToken = 0;
+  function listen(text) {
+    var id = state.roundId, my = ++listenToken;
+    state.locked = true;
+    $('play').classList.add('listening');
+    var done = function () {
+      if (my !== listenToken || id !== state.roundId) return;
+      state.locked = false;
+      $('play').classList.remove('listening');
+    };
+    Voice.speak(text, done);
+    setTimeout(done, 8000); // phòng khi giọng đọc không báo kết thúc
   }
 
   function speakQuestion() {
-    if (state.round) Voice.speak(state.round.speech);
+    if (state.round && !state.celebrating) listen(state.round.speech);
   }
 
   function render() {
@@ -214,6 +232,7 @@
 
   function correct(els) {
     state.locked = true;
+    state.celebrating = true;
     var id = state.roundId;
     els.forEach(function (el) { el.classList.remove('selected'); el.classList.add('correct'); });
     Sound.ting();
@@ -238,23 +257,19 @@
     setTimeout(advance, 5000); // phòng khi giọng đọc không báo kết thúc
   }
 
+  // Trả lời sai: tiếng "bộp" nhỏ, tranh mờ đi, rồi đọc lời gợi ý — chỉ chọn lại được khi đọc xong.
   function wrong(els) {
     state.locked = true;
     var id = state.roundId;
     Voice.stop();
-    Sound.eh();
-    els.forEach(function (el) {
-      el.classList.remove('wrong');
-      void el.offsetWidth;
-      el.classList.add('wrong');
-    });
+    Sound.thud();
+    els.forEach(function (el) { el.classList.add('wrong'); });
     setTimeout(function () {
       els.forEach(function (el) { el.classList.remove('wrong'); });
-      if (id === state.roundId) state.locked = false;
-    }, 900);
+    }, 700);
     setTimeout(function () {
-      if (id === state.roundId && !state.locked) Voice.speak(Games.retry(state.game, state.round));
-    }, 1400);
+      if (id === state.roundId) listen(Games.retry(state.game, state.round));
+    }, 450);
   }
 
   // ---------- Khởi động ----------

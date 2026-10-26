@@ -110,7 +110,19 @@ async function tapCards(page, idxs) {
 async function playGame(page, key, label, dev) {
   await page.tap(`.menu-card[data-game="${key}"]`);
   await page.waitForFunction(() => KidGame.state.round, null, { timeout: 3000 });
-  await page.waitForTimeout(900); // chờ hiệu ứng hiện thẻ
+
+  // Đang đọc câu hỏi: chạm vào đáp án đúng cũng chưa có tác dụng.
+  if (key === 'samediff') {
+    const ans = await page.evaluate(() => KidGame.state.round.answer);
+    await page.tap(`.answer-btn.${ans}`);
+  } else {
+    await tapCards(page, await page.evaluate(answerFor, true));
+  }
+  const ignored = (await stars(page)) === 0 && !(await page.$('.card.correct, .card.selected')) &&
+    (await page.evaluate(() => document.getElementById('play').classList.contains('listening')));
+  check(ignored, `${label} — đang đọc câu hỏi: tranh mờ, chạm chưa có tác dụng`);
+  await page.waitForFunction(() => !KidGame.state.locked, null, { timeout: 10000 });
+  await page.waitForTimeout(300); // chờ hiệu ứng hiện thẻ
   await checkInside(page, '#stage .card', `${label} — thẻ`);
   if (key === 'samediff') await checkInside(page, '.answer-btn', `${label} — nút Giống/Khác`);
   if (key === 'findpair') await checkGrid2x2(page, label);
@@ -126,8 +138,10 @@ async function playGame(page, key, label, dev) {
   }
   await page.waitForTimeout(300);
   const wrongShown = await page.$('.wrong');
-  check(wrongShown && (await stars(page)) === 0 && (await roundId(page)) === id0, `${label} — trả lời sai: rung lắc, không cộng sao, giữ câu hỏi`);
-  await page.waitForFunction(() => !KidGame.state.locked, null, { timeout: 3000 });
+  const lockedAfterWrong = await page.evaluate(() => KidGame.state.locked);
+  check(wrongShown && lockedAfterWrong && (await stars(page)) === 0 && (await roundId(page)) === id0,
+    `${label} — trả lời sai: tranh mờ, không cộng sao, giữ câu hỏi, chờ nghe gợi ý`);
+  await page.waitForFunction(() => !KidGame.state.locked, null, { timeout: 10000 });
 
   // Trả lời đúng hai lượt liền.
   for (let n = 1; n <= 2; n++) {
@@ -173,7 +187,13 @@ async function main() {
     await page.evaluate(() => {
       window.__spoken = [];
       const speak = Voice.speak;
-      Voice.speak = (t, cb) => { window.__spoken.push(t); return speak(t, cb); };
+      // WebKit trên Windows không có Web Audio nên không biết lúc đọc xong:
+      // giả lập mỗi câu đọc mất 1,5 giây.
+      Voice.speak = (t, cb) => {
+        window.__spoken.push(t);
+        speak(t);
+        if (cb) setTimeout(cb, 1500);
+      };
     });
     await page.waitForTimeout(1500);
     await page.screenshot({ path: path.join(OUT, `${dev.name} - home.png`) });
