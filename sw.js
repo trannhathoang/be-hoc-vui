@@ -1,5 +1,5 @@
 /* Lưu sẵn toàn bộ game để chơi được khi không có mạng (chỉ hoạt động qua https). */
-var CACHE = 'be-hoc-vui-v6';        // phần khung game: đổi số mỗi khi sửa code
+var CACHE = 'be-hoc-vui-v7';        // phần khung game: đổi số mỗi khi sửa code
 var VOICE_CACHE = 'be-hoc-vui-voice'; // giọng đọc: giữ qua các phiên bản, tên tệp đổi khi nội dung đổi
 var FILES = [
   './', './index.html', './manifest.json', './css/style.css',

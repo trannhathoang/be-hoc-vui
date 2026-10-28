@@ -2,15 +2,18 @@
 
 Game học cho bé 3–5 tuổi, gồm 3 mini-game:
 
-1. **Tìm vật**: hiện 2 tranh của cùng một đồ vật ở hai trạng thái trái ngược, đọc câu hỏi (ví dụ "Cái bát nào to?"), bé chạm vào tranh đúng. Có 11 cặp từ: to – nhỏ, cao – thấp, dài – ngắn, mới – cũ, béo – gầy, sạch – bẩn, nóng – lạnh, dày – mỏng, ban ngày – ban đêm, cứng – mềm, nặng – nhẹ. Mỗi lượt chọn ngẫu nhiên một cặp (không lặp cặp liền nhau).
+1. **Tìm vật**: hiện 2 tranh của cùng một đồ vật ở hai trạng thái trái ngược, đọc câu hỏi (ví dụ "Cái bát nào to?"), bé chạm vào tranh đúng. Có 11 cặp từ, mỗi cặp có 3–4 cặp tranh (34 cặp tranh): to – nhỏ, cao – thấp, dài – ngắn, mới – cũ, béo – gầy, sạch – bẩn, nóng – lạnh, dày – mỏng, ban ngày – ban đêm, cứng – mềm, nặng – nhẹ.
+   - Mỗi cặp tranh được hỏi đủ cả hai tính từ. Cả bộ 68 câu được xếp thứ tự trước rồi hỏi lần lượt: không câu hỏi nào lặp lại trong 20 câu, không hai câu liền cùng cặp tính từ, tranh đúng không nằm cùng một bên quá 2 lần liền. Thứ tự được lưu trong máy, thoát ra vào lại vẫn hỏi tiếp.
 2. **Giống hay Khác?**: hiện 2 tranh, bé chạm nút **Giống** hoặc **Khác**.
-3. **Tìm 2 tranh**: hiện 4 tranh xếp 2 × 2, bé chạm vào 2 tranh theo câu hỏi. "Tìm 2 tranh giống nhau": chỉ có đúng một cặp giống nhau. "Tìm 2 tranh khác nhau": 3 tranh giống nhau và 1 tranh lẻ.
+3. **Tìm 2 tranh**: hiện 4 tranh xếp 2 × 2, bé chạm vào 2 tranh theo câu hỏi. Có 6 kiểu bố trí:
+   - "Tìm 2 tranh giống nhau": 1 cặp giống + 2 tranh khác; 2 cặp giống nhau (cặp nào cũng đúng); 3 tranh giống + 1 tranh lẻ.
+   - "Tìm 2 tranh khác nhau": 3 tranh giống + 1 tranh lẻ; 2 tranh giống + 2 tranh khác hẳn; 2 cặp giống nhau. Cặp khác nhau nào cũng đúng.
 
 Trả lời đúng: tiếng *ting-ting*, pháo hoa, thêm 1 ngôi sao, lời khen, tự sang câu mới.
 Trả lời sai: tiếng "bộp" nhỏ, tranh mờ đi, game đọc lời gợi ý; bé chỉ chọn lại được khi đọc xong.
 Trong lúc game đọc câu hỏi, tranh hơi mờ và chưa chạm được, để bé nghe hết câu rồi mới chọn (tránh chọn bừa).
 
-Câu hỏi, lời khen và lời động viên có nhiều mẫu câu khác nhau (khoảng 450 câu) để bé làm quen với nhiều cách diễn đạt, ví dụ:
+Câu hỏi, lời khen và lời động viên có nhiều mẫu câu khác nhau (khoảng 630 câu) để bé làm quen với nhiều cách diễn đạt, ví dụ:
 - Câu hỏi: "Bé hãy chọn cái bát to." / "Đâu là cái bát to?" / "Cái bát nào to?" / "Cái bát to ở đâu nhỉ?"
 - Lời khen nhắc lại kiến thức: "Đúng rồi! Đây là cái bát to." / "Đúng rồi! Hai quả bóng này khác màu nhau."
 - Báo sai có gợi ý: "Đây là cái bát nhỏ. Bé tìm cái bát to nhé!" / "Hai tranh này giống nhau mà. Bé tìm hai tranh khác nhau nhé!"
@@ -88,7 +91,7 @@ npx --prefix tools playwright install webkit
 ```
 
 - **Thu lại giọng đọc** (sau khi thêm/sửa câu trong `js/games.js`): `tools/.venv/Scripts/python tools/make-voice.py`. Chỉ những câu mới hoặc đã sửa mới được thu lại. Muốn đổi giọng, sửa `VOICE` trong tệp đó (ví dụ `vi-VN-NamMinhNeural` là giọng nam của Microsoft). Để nghe thử và so sánh các giọng: `tools/.venv/Scripts/python tools/voice-samples.py` rồi mở `tools/voice-samples/index.html`.
-- **Chạy kiểm tra tự động**: `npm test --prefix tools`. Ảnh chụp từng màn hình được lưu trong `tools/test-output/`.
+- **Chạy kiểm tra tự động**: `npm test --prefix tools` (luật chọn câu hỏi + chơi thử trên WebKit; chỉ kiểm tra luật: `npm run test:logic --prefix tools`). Ảnh chụp từng màn hình được lưu trong `tools/test-output/`.
   Lưu ý: bản WebKit của Playwright trên Windows không có Web Audio, nên bài kiểm tra bỏ qua phần phát giọng thu sẵn. Safari thật trên iPhone/iPad có Web Audio.
 
 ## Thêm nội dung

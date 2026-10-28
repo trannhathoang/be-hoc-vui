@@ -364,15 +364,35 @@ var Art = (function () {
     return s;
   }
 
-  // Ban ngày – ban đêm: cùng một cảnh nhà và đồi.
-  function scene(day) {
+  // Ban ngày – ban đêm: cùng một cảnh (kind = 'house' | 'beach' | 'garden'), trời sáng hoặc tối.
+  function scene(day, kind) {
     var sky = day ? '#8fd3ff' : '#1d2b5a';
-    var s = '<rect x="6" y="6" width="188" height="188" rx="18" fill="' + sky + '"/>' +
-      '<path d="M6 150 Q60 126 110 146 T194 138 L194 176 Q194 194 176 194 L24 194 Q6 194 6 176 Z" fill="' + (day ? '#7ed36b' : '#2f6b45') + '"/>' +
-      '<rect x="112" y="112" width="48" height="40" fill="' + (day ? '#ffcf99' : '#9c7550') + '"/>' +
-      '<polygon points="104,114 136,88 168,114" fill="' + (day ? '#ff6b6b' : '#8f3b42') + '"/>' +
-      '<rect x="120" y="122" width="14" height="13" fill="' + (day ? '#bfe8ff' : '#ffe066') + '"/>' +
-      '<rect x="142" y="130" width="11" height="22" fill="#7a4f33"/>';
+    var dn = function (d, n) { return day ? d : n; };
+    var hill = '<path d="M6 150 Q60 126 110 146 T194 138 L194 176 Q194 194 176 194 L24 194 Q6 194 6 176 Z" fill="' + dn('#7ed36b', '#2f6b45') + '"/>';
+    var s = '<rect x="6" y="6" width="188" height="188" rx="18" fill="' + sky + '"/>';
+    if (kind === 'beach') {
+      s += '<rect x="6" y="110" width="188" height="50" fill="' + dn('#3fa9f5', '#1f3f75') + '"/>' +
+        '<path d="M20 124 q10 -6 20 0 q10 6 20 0 M110 136 q10 -6 20 0 q10 6 20 0 M60 146 q10 -6 20 0" fill="none" stroke="' + dn('#bfe8ff', '#5a7bb5') + '" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M6 156 Q100 140 194 156 L194 176 Q194 194 176 194 L24 194 Q6 194 6 176 Z" fill="' + dn('#ffe2a1', '#8c7a55') + '"/>' +
+        '<path d="M140 120 L170 120 L164 130 L146 130 Z" fill="' + dn('#ff6b6b', '#8f3b42') + '"/>' +
+        '<polygon points="154,118 154,82 174,116" fill="' + dn('#fff', '#c9cfdb') + '"/>' +
+        '<line x1="154" y1="118" x2="154" y2="80" stroke="#7a4f33" stroke-width="3"/>' +
+        '<path d="M40 180 q4 -10 14 -8 q2 8 -4 12 z" fill="' + dn('#ff9fb2', '#9c6a75') + '"/>';
+    } else if (kind === 'garden') {
+      s += hill +
+        '<rect x="132" y="98" width="14" height="46" rx="4" fill="#7a4f33"/>' +
+        '<circle cx="139" cy="88" r="28" fill="' + dn('#3dcc6b', '#2a6e48') + '"/>' +
+        '<circle cx="122" cy="100" r="16" fill="' + dn('#2fae58', '#235c3c') + '"/>' +
+        '<g fill="' + dn('#c08a5a', '#6b5038') + '"><rect x="20" y="136" width="8" height="30"/><rect x="44" y="134" width="8" height="30"/><rect x="68" y="136" width="8" height="30"/><rect x="16" y="146" width="66" height="6"/></g>' +
+        '<g fill="' + dn('#ff6fb5', '#8c4a6c') + '"><circle cx="96" cy="166" r="6"/><circle cx="114" cy="172" r="6"/><circle cx="168" cy="166" r="6"/></g>' +
+        '<g fill="' + dn('#ffd23f', '#8a7a3a') + '"><circle cx="96" cy="166" r="2.5"/><circle cx="114" cy="172" r="2.5"/><circle cx="168" cy="166" r="2.5"/></g>';
+    } else {
+      s += hill +
+        '<rect x="112" y="112" width="48" height="40" fill="' + dn('#ffcf99', '#9c7550') + '"/>' +
+        '<polygon points="104,114 136,88 168,114" fill="' + dn('#ff6b6b', '#8f3b42') + '"/>' +
+        '<rect x="120" y="122" width="14" height="13" fill="' + dn('#bfe8ff', '#ffe066') + '"/>' +
+        '<rect x="142" y="130" width="11" height="22" fill="#7a4f33"/>';
+    }
     if (day) {
       s += '<g stroke="#ffd23f" stroke-width="5" stroke-linecap="round">';
       for (var i = 0; i < 8; i++) {
@@ -461,6 +481,221 @@ var Art = (function () {
       '<path d="M30 80 q10 -8 20 0 q10 8 20 0"/><path d="M40 112 q8 -6 16 0 q8 6 16 0"/></g>';
   }
 
+  // ---------- Thêm tranh cho các cặp tính từ (mỗi cặp ít nhất 3 đồ vật) ----------
+
+  // Mới – cũ: chiếc giày.
+  function shoe(color, old) {
+    color = color || COLORS.red;
+    var body = old ? mix(color, '#a39e92', 0.6) : color;
+    var s = '<path d="M28 150 L28 128 Q30 112 48 110 L86 104 Q96 84 120 82 L138 82 Q150 84 152 100 L152 118 Q176 122 178 140 L178 150 Z" fill="' + body + '"/>' +
+      '<path d="M28 150 L28 130 Q30 118 46 116 L62 114 L62 150 Z" fill="#fff" opacity="0.85"/>' +
+      '<ellipse cx="138" cy="84" rx="13" ry="4" fill="' + shade(body, -0.35) + '"/>' +
+      '<path d="M90 102 l18 10 M97 94 l18 10 M105 87 l16 9" stroke="#fff" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M22 148 L184 148 Q186 166 168 168 L36 168 Q20 166 22 148 Z" fill="#f1f1f1" stroke="#c9ced6" stroke-width="3"/>';
+    if (old) {
+      s += '<rect x="120" y="112" width="22" height="18" rx="3" fill="#c9a66b" transform="rotate(8 131 121)"/>' +
+        '<rect x="123" y="115" width="16" height="12" rx="2" fill="none" stroke="#7a5a2a" stroke-width="2" stroke-dasharray="3 3" transform="rotate(8 131 121)"/>' +
+        '<path d="M70 124 l6 -5 l4 6 l6 -3 l-2 7 l5 4 l-8 1 l-3 6 l-3 -6 l-7 -2 z" fill="#4a423a"/>' +
+        '<path d="M22 150 L44 150 L24 164 Z" fill="#4a423a"/>' +
+        '<g fill="#cfc9bd"><circle cx="186" cy="170" r="6"/><circle cx="176" cy="178" r="4"/><circle cx="14" cy="172" r="5"/></g>';
+    } else {
+      s += '<path d="M74 132 Q110 118 148 128" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.4"/>' +
+        sparkle(40, 80, 11) + sparkle(172, 96, 9) + sparkle(160, 54, 7);
+    }
+    return s;
+  }
+
+  // Mới – cũ: chiếc ô tô (ô tô cũ bạc màu, gỉ sét, móp, nhả khói).
+  function carAge(color, old) {
+    color = color || COLORS.red;
+    if (!old) {
+      return car(color) + '<path d="M40 112 L100 112" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.45"/>' +
+        sparkle(30, 66, 11) + sparkle(178, 50, 9) + sparkle(110, 34, 7);
+    }
+    return car(mix(color, '#a39e92', 0.6)) +
+      '<g fill="#a0522d" opacity="0.85"><ellipse cx="48" cy="124" rx="8" ry="5"/><ellipse cx="150" cy="128" rx="6" ry="4"/>' +
+      '<ellipse cx="118" cy="114" rx="5" ry="3.5"/></g>' +
+      '<path d="M88 118 q10 8 20 0" fill="none" stroke="#5a5048" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M128 74 l8 10 l-6 6" fill="none" stroke="#fff" stroke-width="2.5"/>' +
+      '<g fill="#b9bdc4" opacity="0.9"><circle cx="12" cy="128" r="9"/><circle cx="10" cy="110" r="7"/><circle cx="20" cy="96" r="5"/></g>';
+  }
+
+  // Béo – gầy: con chó.
+  function dog(fat) {
+    var c = '#d9a066', d = '#a86f3a', bw = fat ? 62 : 26;
+    return '' +
+      '<path d="M' + (100 + bw - 6) + ' 152 q26 -4 22 -36" fill="none" stroke="' + d + '" stroke-width="' + (fat ? 11 : 8) + '" stroke-linecap="round"/>' +
+      '<ellipse cx="100" cy="138" rx="' + bw + '" ry="44" fill="' + c + '"/>' +
+      '<ellipse cx="100" cy="150" rx="' + (bw * 0.6) + '" ry="26" fill="#f3d9b5"/>' +
+      '<ellipse cx="' + (100 - bw * 0.5) + '" cy="181" rx="13" ry="7" fill="' + d + '"/>' +
+      '<ellipse cx="' + (100 + bw * 0.5) + '" cy="181" rx="13" ry="7" fill="' + d + '"/>' +
+      '<circle cx="100" cy="72" r="30" fill="' + c + '"/>' +
+      '<ellipse cx="72" cy="76" rx="11" ry="22" fill="' + d + '" transform="rotate(18 72 76)"/>' +
+      '<ellipse cx="128" cy="76" rx="11" ry="22" fill="' + d + '" transform="rotate(-18 128 76)"/>' +
+      '<ellipse cx="100" cy="86" rx="15" ry="11" fill="#f3d9b5"/>' +
+      '<ellipse cx="100" cy="80" rx="6" ry="4.5" fill="' + OUT + '"/>' +
+      '<circle cx="89" cy="66" r="4.5" fill="' + OUT + '"/><circle cx="111" cy="66" r="4.5" fill="' + OUT + '"/>' +
+      '<path d="M100 85 q-5 6 -10 3 M100 85 q5 6 10 3" fill="none" stroke="' + OUT + '" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<ellipse cx="100" cy="95" rx="4" ry="5" fill="#ff7b9c"/>';
+  }
+
+  // Béo – gầy: con chim.
+  function bird(fat) {
+    var c = '#4fb3f6', d = '#2e86c9';
+    var rx = fat ? 58 : 26, ry = fat ? 54 : 50;
+    var left = 100 - rx;
+    return '' +
+      '<path d="M90 ' + (104 + ry) + ' V182 M110 ' + (104 + ry) + ' V182 M84 182 h12 M104 182 h12" stroke="#f0a030" stroke-width="4" stroke-linecap="round"/>' +
+      '<polygon points="' + (100 + rx - 8) + ',118 ' + (100 + rx + 24) + ',132 ' + (100 + rx + 20) + ',104" fill="' + d + '"/>' +
+      '<ellipse cx="100" cy="108" rx="' + rx + '" ry="' + ry + '" fill="' + c + '"/>' +
+      '<ellipse cx="100" cy="122" rx="' + (rx * 0.62) + '" ry="' + (ry * 0.58) + '" fill="#bfe3ff"/>' +
+      '<ellipse cx="' + (100 + rx * 0.35) + '" cy="112" rx="' + (rx * 0.42) + '" ry="' + (ry * 0.45) + '" fill="' + d + '"/>' +
+      '<circle cx="' + (100 - rx * 0.4) + '" cy="88" r="5" fill="' + OUT + '"/>' +
+      '<polygon points="' + (left + 6) + ',94 ' + (left - 16) + ',101 ' + (left + 6) + ',108" fill="#ffb020"/>' +
+      '<path d="M96 ' + (60 - (fat ? 4 : 0)) + ' q4 -12 12 -10 M100 ' + (58 - (fat ? 4 : 0)) + ' q8 -8 14 -2" fill="none" stroke="' + d + '" stroke-width="4" stroke-linecap="round"/>';
+  }
+
+  // Sạch – bẩn: cái đĩa.
+  function plate(dirty) {
+    var s = '<ellipse cx="100" cy="108" rx="84" ry="58" fill="#fff" stroke="#c9ced6" stroke-width="4"/>' +
+      '<ellipse cx="100" cy="108" rx="58" ry="38" fill="#f4f6fa" stroke="#dde2ea" stroke-width="3"/>';
+    if (dirty) {
+      s += '<path d="M70 96 q16 -14 34 -4 q14 10 2 22 q-14 12 -32 4 q-14 -8 -4 -22 z" fill="#c0703a" opacity="0.85"/>' +
+        '<path d="M118 120 q10 -8 20 0 q4 10 -8 12 q-14 2 -12 -12 z" fill="#e2b04a"/>' +
+        '<path d="M40 88 q10 -4 14 6 M150 80 q8 2 6 10" stroke="#c0703a" stroke-width="5" stroke-linecap="round"/>' +
+        '<g fill="#8b5a2b"><circle cx="128" cy="96" r="3"/><circle cx="84" cy="132" r="3"/><circle cx="58" cy="118" r="2.5"/><circle cx="142" cy="138" r="2.5"/></g>' +
+        '<g fill="#333"><circle cx="150" cy="40" r="3.5"/><circle cx="170" cy="58" r="3"/></g>' +
+        '<g fill="#d5dbe3"><ellipse cx="147" cy="35" rx="4" ry="2.5"/><ellipse cx="154" cy="35" rx="4" ry="2.5"/></g>';
+    } else {
+      s += '<path d="M48 90 Q60 66 92 60" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>' +
+        sparkle(150, 70, 12) + sparkle(64, 150, 9) + sparkle(176, 132, 7);
+    }
+    return s;
+  }
+
+  // Sạch – bẩn: bàn tay.
+  function hand(dirty) {
+    var skin = '#ffd2a6', mud = '#8b5a2b';
+    var s = '<rect x="76" y="160" width="48" height="36" rx="8" fill="#3fa9f5"/>' +
+      '<rect x="34" y="104" width="20" height="52" rx="10" fill="' + skin + '" transform="rotate(-35 44 130)"/>' +
+      '<rect x="62" y="42" width="18" height="70" rx="9" fill="' + skin + '"/>' +
+      '<rect x="82" y="30" width="18" height="80" rx="9" fill="' + skin + '"/>' +
+      '<rect x="102" y="34" width="18" height="76" rx="9" fill="' + skin + '"/>' +
+      '<rect x="122" y="50" width="17" height="62" rx="8.5" fill="' + skin + '"/>' +
+      '<rect x="60" y="86" width="82" height="84" rx="26" fill="' + skin + '"/>' +
+      '<path d="M78 120 q22 12 44 0" fill="none" stroke="#e9b07f" stroke-width="3" stroke-linecap="round"/>';
+    if (dirty) {
+      s += '<g fill="' + mud + '"><path d="M74 132 q14 -10 26 0 q8 12 -6 18 q-16 4 -20 -6 z"/>' +
+        '<ellipse cx="124" cy="100" rx="10" ry="7"/><ellipse cx="91" cy="40" rx="8" ry="6"/>' +
+        '<ellipse cx="71" cy="54" rx="7" ry="6"/><ellipse cx="130" cy="146" rx="7" ry="5"/>' +
+        '<circle cx="112" cy="128" r="3"/><circle cx="104" cy="66" r="3"/><circle cx="46" cy="114" r="4"/></g>';
+    } else {
+      s += sparkle(160, 62, 12) + sparkle(40, 66, 9) + sparkle(166, 128, 7) +
+        '<circle cx="150" cy="94" r="7" fill="none" stroke="#9fd8f5" stroke-width="2.5"/>' +
+        '<circle cx="164" cy="104" r="4" fill="none" stroke="#9fd8f5" stroke-width="2.5"/>';
+    }
+    return s;
+  }
+
+  // Nóng – lạnh: cái nồi (vạch đỏ + hơi + lửa / vạch xanh + băng tuyết).
+  function pot(hot) {
+    var s = '<rect x="22" y="100" width="26" height="10" rx="5" fill="#5a5f6b"/><rect x="152" y="100" width="26" height="10" rx="5" fill="#5a5f6b"/>' +
+      '<rect x="40" y="92" width="120" height="72" rx="12" fill="#9aa5b5"/>' +
+      '<rect x="40" y="118" width="120" height="12" fill="' + (hot ? '#ff6b6b' : '#3fa9f5') + '"/>' +
+      '<ellipse cx="100" cy="92" rx="64" ry="10" fill="#b5bfcc"/><ellipse cx="100" cy="80" rx="11" ry="6" fill="#5a5f6b"/>';
+    if (hot) {
+      s += '<g fill="none" stroke="#aab3c0" stroke-width="5" stroke-linecap="round">' +
+        '<path d="M76 66 q-10 -12 0 -24 q10 -12 0 -24"/><path d="M124 66 q-10 -12 0 -24 q10 -12 0 -24"/></g>' +
+        '<path d="M64 192 q-8 -14 4 -24 q2 10 8 6 q6 -12 0 -18 q18 8 12 36 z M108 192 q-10 -16 4 -28 q2 12 10 8 q4 -10 -2 -16 q22 10 12 36 z" fill="#ff9f1c"/>' +
+        '<path d="M70 192 q-2 -8 4 -12 q4 6 6 12 z M116 192 q-2 -9 5 -14 q4 7 6 14 z" fill="#ffe066"/>';
+    } else {
+      s += '<g fill="#e6f8ff" stroke="#9fd8f5" stroke-width="2"><ellipse cx="74" cy="90" rx="16" ry="5"/><ellipse cx="128" cy="92" rx="12" ry="4"/></g>' +
+        '<g fill="#cfefff"><polygon points="52,164 58,164 55,180"/><polygon points="78,164 86,164 82,184"/><polygon points="118,164 124,164 121,178"/><polygon points="142,164 150,164 146,182"/></g>' +
+        '<g stroke="#8fd6ff" stroke-width="3" stroke-linecap="round"><path d="M166 24 v28 M152 38 h28 M156 28 l20 20 M176 28 l-20 20"/></g>';
+    }
+    return s;
+  }
+
+  // Nóng – lạnh: cái ấm.
+  function kettle(hot) {
+    var s = '<path d="M70 82 Q100 34 130 82" fill="none" stroke="#5a5f6b" stroke-width="8" stroke-linecap="round"/>' +
+      '<path d="M140 124 L174 96 L180 104 L150 140 Z" fill="#c9d1dc"/>' +
+      '<path d="M54 170 Q38 116 72 84 L128 84 Q162 116 146 170 Z" fill="#c9d1dc"/>' +
+      '<path d="M45 136 L155 136 L152 150 L48 150 Z" fill="' + (hot ? '#ff6b6b' : '#3fa9f5') + '"/>' +
+      '<ellipse cx="100" cy="84" rx="30" ry="6" fill="#aeb7c4"/><circle cx="100" cy="76" r="6" fill="#5a5f6b"/>' +
+      '<rect x="48" y="168" width="104" height="8" rx="4" fill="#8a93a3"/>' +
+      '<path d="M66 110 Q62 130 66 150" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.5"/>';
+    if (hot) {
+      s += '<g fill="none" stroke="#aab3c0" stroke-width="5" stroke-linecap="round">' +
+        '<path d="M180 90 q-10 -12 0 -24 q10 -12 0 -24"/><path d="M164 80 q-8 -10 0 -20 q8 -10 0 -20"/></g>';
+    } else {
+      s += '<g fill="#e6f8ff" stroke="#9fd8f5" stroke-width="2"><ellipse cx="86" cy="104" rx="10" ry="6"/><ellipse cx="124" cy="120" rx="8" ry="5"/></g>' +
+        '<g fill="#cfefff"><polygon points="170,104 176,104 173,120"/><polygon points="60,170 66,170 63,186"/><polygon points="132,170 138,170 135,184"/></g>' +
+        '<g stroke="#8fd6ff" stroke-width="3" stroke-linecap="round"><path d="M30 30 v28 M16 44 h28 M20 34 l20 20 M40 34 l-20 20"/></g>';
+    }
+    return s;
+  }
+
+  // Dày – mỏng: miếng bánh mì nằm (mặt trên + phần vỏ cạnh dày/mỏng).
+  function bread(thick) {
+    var t = thick ? 46 : 8, top = 100 - (60 + t) / 2;
+    return '<rect x="36" y="' + (top + 30) + '" width="128" height="' + (30 + t) + '" rx="18" fill="#c98a4b"/>' +
+      (thick ? '<path d="M48 ' + (top + 70) + ' h104 M48 ' + (top + 84) + ' h104" stroke="#b07438" stroke-width="3" stroke-linecap="round"/>' : '') +
+      '<rect x="36" y="' + top + '" width="128" height="60" rx="18" fill="#f7dca8" stroke="#c98a4b" stroke-width="7"/>' +
+      '<g fill="#e9c487"><ellipse cx="72" cy="' + (top + 22) + '" rx="6" ry="3"/><ellipse cx="104" cy="' + (top + 34) + '" rx="7" ry="3"/>' +
+      '<ellipse cx="132" cy="' + (top + 20) + '" rx="5" ry="2.5"/><ellipse cx="86" cy="' + (top + 44) + '" rx="5" ry="2.5"/></g>';
+  }
+
+  // Dày – mỏng: cái đệm.
+  function mattress(thick) {
+    var t = thick ? 54 : 10, top = 104 - (60 + t) / 2;
+    var s = '<rect x="26" y="' + (top + 30) + '" width="148" height="' + (30 + t) + '" rx="10" fill="#6c8fd6"/>';
+    if (thick) s += '<line x1="34" y1="' + (top + 60 + t / 2) + '" x2="166" y2="' + (top + 60 + t / 2) + '" stroke="#a9c2f5" stroke-width="3" stroke-dasharray="6 5"/>';
+    s += '<rect x="26" y="' + top + '" width="148" height="60" rx="14" fill="#a9c2f5"/>';
+    for (var x = 50; x <= 150; x += 25) {
+      s += '<circle cx="' + x + '" cy="' + (top + 18) + '" r="3" fill="#7f9fe0"/><circle cx="' + x + '" cy="' + (top + 42) + '" r="3" fill="#7f9fe0"/>';
+    }
+    return s;
+  }
+
+  // Cứng: cái búa. Mềm: cuộn len.
+  function hammer() {
+    return '<ellipse cx="104" cy="178" rx="64" ry="7" fill="#000" opacity="0.08"/>' +
+      '<g transform="rotate(-30 100 110)">' +
+      '<rect x="91" y="62" width="18" height="118" rx="8" fill="#b07a4a"/>' +
+      '<rect x="50" y="40" width="100" height="32" rx="6" fill="#7d838c"/>' +
+      '<rect x="56" y="45" width="40" height="6" rx="3" fill="#c3c8cf"/></g>';
+  }
+  function yarn() {
+    return '<path d="M146 144 Q174 162 160 182 Q150 194 180 192" fill="none" stroke="#e0609b" stroke-width="4" stroke-linecap="round"/>' +
+      '<circle cx="100" cy="104" r="58" fill="#ff8fc0"/>' +
+      '<g fill="none" stroke="#e0609b" stroke-width="4" stroke-linecap="round">' +
+      '<path d="M54 80 Q100 58 146 84"/><path d="M44 108 Q100 84 156 114"/><path d="M56 140 Q100 116 144 146"/>' +
+      '<path d="M82 50 Q58 104 86 160"/><path d="M120 50 Q142 100 118 160"/></g>';
+  }
+
+  // Nặng: xe tải. Nhẹ: chiếc lá.
+  function truck() {
+    return '<ellipse cx="100" cy="168" rx="88" ry="7" fill="#000" opacity="0.08"/>' +
+      '<rect x="14" y="62" width="114" height="84" rx="6" fill="#3fa9f5"/>' +
+      '<rect x="14" y="84" width="114" height="10" fill="#2e86c9"/>' +
+      '<path d="M128 86 L160 86 Q172 86 178 100 L186 118 L186 146 L128 146 Z" fill="#ff6b6b"/>' +
+      '<path d="M136 94 L158 94 Q166 94 170 104 L175 116 L136 116 Z" fill="#bfe8ff"/>' +
+      '<circle cx="180" cy="130" r="5" fill="#ffe066"/>' +
+      '<circle cx="44" cy="150" r="17" fill="' + OUT + '"/><circle cx="44" cy="150" r="7" fill="#c9ced6"/>' +
+      '<circle cx="84" cy="150" r="17" fill="' + OUT + '"/><circle cx="84" cy="150" r="7" fill="#c9ced6"/>' +
+      '<circle cx="160" cy="150" r="17" fill="' + OUT + '"/><circle cx="160" cy="150" r="7" fill="#c9ced6"/>';
+  }
+  function leaf() {
+    return '<path d="M60 150 C50 90 110 40 162 46 C162 100 122 150 60 150 Z" fill="#7ed36b"/>' +
+      '<path d="M60 150 Q112 100 156 52" fill="none" stroke="#4fa84a" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<g stroke="#4fa84a" stroke-width="2.5" stroke-linecap="round" fill="none">' +
+      '<path d="M88 122 l-6 -20 M108 102 l-4 -22 M128 82 l-2 -18 M96 112 l18 4 M118 92 l18 4"/></g>' +
+      '<path d="M60 150 l-16 16" stroke="#4fa84a" stroke-width="4" stroke-linecap="round"/>' +
+      '<g fill="none" stroke="#c9d3df" stroke-width="3" stroke-linecap="round">' +
+      '<path d="M20 70 q10 -8 20 0 q10 8 20 0"/><path d="M128 170 q8 -6 16 0 q8 6 16 0"/></g>';
+  }
+
   // ---------- Ghép thành thẻ SVG ----------
 
   // Phóng to/thu nhỏ quanh điểm (100, anchorY).
@@ -494,6 +729,9 @@ var Art = (function () {
     shirt: shirt, cat: cat, pig: pig, cup: cup, book: book, scene: scene,
     rock: rock, brick: brick, pillow: pillow, teddy: teddy,
     dumbbell: dumbbell, elephant: elephant, feather: feather,
+    shoe: shoe, carAge: carAge, dog: dog, bird: bird, plate: plate, hand: hand,
+    pot: pot, kettle: kettle, bread: bread, mattress: mattress,
+    hammer: hammer, yarn: yarn, truck: truck, leaf: leaf,
     scaled: scaled, svg: svg, compose: compose
   };
 })();

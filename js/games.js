@@ -53,32 +53,175 @@ var Games = (function () {
       draw: function (a, c) { return Art.candle(a ? 130 : 40, c); } },
     { name: 'cái áo', words: ['mới', 'cũ'], colors: [C.blue, C.red, C.green, C.purple],
       draw: function (a, c) { return Art.shirt(c, !a); } },
+    { name: 'chiếc giày', words: ['mới', 'cũ'], colors: [C.red, C.blue, C.green, C.purple],
+      draw: function (a, c) { return Art.shoe(c, !a); } },
+    { name: 'chiếc ô tô', words: ['mới', 'cũ'], colors: [C.red, C.blue, C.yellow, C.green],
+      draw: function (a, c) { return Art.carAge(c, !a); } },
     { name: 'con mèo', words: ['béo', 'gầy'], colors: [null],
       draw: function (a) { return Art.cat(a); } },
+    { name: 'con chó', words: ['béo', 'gầy'], colors: [null],
+      draw: function (a) { return Art.dog(a); } },
+    { name: 'con chim', words: ['béo', 'gầy'], colors: [null],
+      draw: function (a) { return Art.bird(a); } },
     { name: 'con lợn', words: ['sạch', 'bẩn'], colors: [null],
       draw: function (a) { return Art.pig(!a); } },
+    { name: 'cái đĩa', words: ['sạch', 'bẩn'], colors: [null],
+      draw: function (a) { return Art.plate(!a); } },
+    { name: 'bàn tay', words: ['sạch', 'bẩn'], colors: [null],
+      draw: function (a) { return Art.hand(!a); } },
     { name: 'cốc nước', words: ['nóng', 'lạnh'], colors: [null],
       draw: function (a) { return Art.cup(a); } },
+    { name: 'cái nồi', words: ['nóng', 'lạnh'], colors: [null],
+      draw: function (a) { return Art.pot(a); } },
+    { name: 'cái ấm', words: ['nóng', 'lạnh'], colors: [null],
+      draw: function (a) { return Art.kettle(a); } },
     { name: 'quyển sách', words: ['dày', 'mỏng'], colors: [C.red, C.blue, C.green, C.purple],
       draw: function (a, c) { return Art.book(c, a); } },
+    { name: 'miếng bánh mì', words: ['dày', 'mỏng'], colors: [null],
+      draw: function (a) { return Art.bread(a); } },
+    { name: 'cái đệm', words: ['dày', 'mỏng'], colors: [null],
+      draw: function (a) { return Art.mattress(a); } },
     // link: chèn sau "nào" cho tự nhiên — "Bức tranh nào là ban đêm?"
     { name: 'bức tranh', words: ['ban ngày', 'ban đêm'], link: 'là ', colors: [null],
-      draw: function (a) { return Art.scene(a); } },
+      draw: function (a) { return Art.scene(a, 'house'); } },
+    { name: 'bức tranh', words: ['ban ngày', 'ban đêm'], link: 'là ', colors: [null],
+      draw: function (a) { return Art.scene(a, 'beach'); } },
+    { name: 'bức tranh', words: ['ban ngày', 'ban đêm'], link: 'là ', colors: [null],
+      draw: function (a) { return Art.scene(a, 'garden'); } },
+    // Cứng – mềm, nặng – nhẹ: mỗi cặp tranh là hai vật khác nhau.
     { name: 'vật', words: ['cứng', 'mềm'], colors: [null],
-      draw: function (a) { return a ? pick([Art.rock, Art.brick])() : pick([Art.pillow, Art.teddy])(); } },
+      draw: function (a) { return a ? Art.rock() : Art.pillow(); } },
+    { name: 'vật', words: ['cứng', 'mềm'], colors: [null],
+      draw: function (a) { return a ? Art.brick() : Art.teddy(); } },
+    { name: 'vật', words: ['cứng', 'mềm'], colors: [null],
+      draw: function (a) { return a ? Art.hammer() : Art.yarn(); } },
     { name: 'vật', words: ['nặng', 'nhẹ'], colors: [null],
-      draw: function (a) { return a ? pick([Art.dumbbell, Art.elephant])() : pick([Art.feather, function () { return Art.balloon(C.red); }])(); } }
+      draw: function (a) { return a ? Art.dumbbell() : Art.feather(); } },
+    { name: 'vật', words: ['nặng', 'nhẹ'], colors: [null],
+      draw: function (a) { return a ? Art.elephant() : Art.balloon(C.red); } },
+    { name: 'vật', words: ['nặng', 'nhẹ'], colors: [null],
+      draw: function (a) { return a ? Art.truck() : Art.leaf(); } }
   ];
 
-  // Nhóm theo cặp tính từ (to–nhỏ có 4 đồ vật, ngày–đêm có 1...) để chọn cặp trước,
-  // nhờ vậy mọi cặp xuất hiện đều nhau.
-  var PAIRS = [];
-  OPPOSITES.forEach(function (item) {
-    var key = item.words.join('-');
-    var g = PAIRS.filter(function (p) { return p.key === key; })[0];
-    if (!g) { g = { key: key, items: [] }; PAIRS.push(g); }
-    g.items.push(item);
-  });
+  function categoryOf(item) { return item.words.join('-'); }
+
+  // ---------- Bộ câu hỏi của trò 1 ----------
+  // Mỗi câu hỏi = một cặp tranh + một tính từ (ví dụ cốc nước + "nóng"), nên mỗi cặp tranh
+  // được hỏi đủ cả hai tính từ. Cả bộ được xếp thứ tự trước rồi hỏi lần lượt, hết bộ mới
+  // xếp bộ mới. Khi xếp: không câu nào lặp lại trong RECENT câu gần nhất (kể cả lúc nối
+  // sang bộ mới), hai câu của cùng một cặp tranh cách xa nhau, không hai câu liền cùng
+  // cặp tính từ. Thứ tự được lưu trong máy để thoát ra vào lại vẫn hỏi tiếp, không lặp.
+  var RECENT = 20;
+  var DECK_KEY = 'be-hoc-vui:tim-vat';
+  var DECK_VERSION = OPPOSITES.map(function (it) { return it.name + categoryOf(it); }).join('|');
+  var deck = { order: [], history: [] };
+
+  function itemOf(id) { return +id.split(':')[0]; }
+  function wordOf(id) { return +id.split(':')[1]; }
+  function catOf(id) { return categoryOf(OPPOSITES[itemOf(id)]); }
+  // Câu hỏi bé nghe thấy: "vật" + "nhẹ" là cùng một câu dù tranh khác nhau.
+  function textOf(id) { var it = OPPOSITES[itemOf(id)]; return it.name + '|' + it.words[wordOf(id)]; }
+
+  function loadDeck() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(DECK_KEY));
+      if (saved && saved.version === DECK_VERSION) deck = { order: saved.order, history: saved.history };
+    } catch (e) { /* không có bộ nhớ: bắt đầu bộ mới */ }
+  }
+  function saveDeck() {
+    try {
+      localStorage.setItem(DECK_KEY, JSON.stringify({ version: DECK_VERSION, order: deck.order, history: deck.history }));
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  // Đếm số lần một thứ tự phá luật (tính cả đoạn cuối của bộ trước).
+  function violations(history, order) {
+    var seq = history.slice(-RECENT).concat(order), start = seq.length - order.length, bad = 0;
+    for (var i = start; i < seq.length; i++) {
+      for (var j = Math.max(0, i - RECENT + 1); j < i; j++) {
+        if (textOf(seq[j]) === textOf(seq[i])) bad++;
+        if (i - j < 4 && itemOf(seq[j]) === itemOf(seq[i])) bad++;
+      }
+      if (i > 0 && catOf(seq[i - 1]) === catOf(seq[i])) bad++;
+    }
+    return bad;
+  }
+
+  // Xếp vài lần, lấy thứ tự đầu tiên không phá luật (hoặc ít lỗi nhất).
+  function buildOrder(history) {
+    var best = null, bestBad = Infinity;
+    for (var tries = 0; tries < 60 && bestBad > 0; tries++) {
+      var order = tryOrder(history);
+      var bad = violations(history, order);
+      if (bad < bestBad) { best = order; bestBad = bad; }
+    }
+    return best;
+  }
+
+  function tryOrder(history) {
+    var remaining = [];
+    OPPOSITES.forEach(function (it, i) { remaining.push(i + ':0', i + ':1'); });
+    remaining = shuffle(remaining);
+    var seq = history.slice(-RECENT);
+    var order = [];
+    while (remaining.length) {
+      var recent = seq.slice(-RECENT);
+      var recentText = recent.map(textOf);
+      var lastCat = seq.length ? catOf(seq[seq.length - 1]) : null;
+      var nearItems = seq.slice(-8).map(itemOf);
+      var fresh = function (id) { return recentText.indexOf(textOf(id)) < 0; };
+      // Lọc theo ràng buộc, nới dần nếu không còn câu nào thoả.
+      var rules = [
+        function (id) { return fresh(id) && catOf(id) !== lastCat && nearItems.indexOf(itemOf(id)) < 0; },
+        function (id) { return fresh(id) && catOf(id) !== lastCat; },
+        function (id) { return fresh(id); },
+        function (id) { return recent.indexOf(id) < 0; },
+        function () { return true; }
+      ];
+      var cands = [];
+      for (var k = 0; k < rules.length && !cands.length; k++) cands = remaining.filter(rules[k]);
+      // Ưu tiên cặp tính từ còn nhiều câu (để các cặp trải đều suốt bộ), và rất ưu tiên
+      // câu còn nhiều bản cùng chữ (như "vật nhẹ" có 3 cặp tranh) vì chúng phải cách nhau xa.
+      var leftCat = {}, leftText = {};
+      remaining.forEach(function (id) {
+        leftCat[catOf(id)] = (leftCat[catOf(id)] || 0) + 1;
+        leftText[textOf(id)] = (leftText[textOf(id)] || 0) + 1;
+      });
+      var weight = function (id) { var t = leftText[textOf(id)]; return leftCat[catOf(id)] * t * t * t; };
+      var total = 0;
+      cands.forEach(function (id) { total += weight(id); });
+      var r = Math.random() * total, chosen = cands[0];
+      for (var j = 0; j < cands.length; j++) {
+        r -= weight(cands[j]);
+        if (r <= 0) { chosen = cands[j]; break; }
+      }
+      order.push(chosen);
+      seq.push(chosen);
+      remaining.splice(remaining.indexOf(chosen), 1);
+    }
+    return order;
+  }
+
+  function nextQuestion() {
+    if (!deck.order.length) deck.order = buildOrder(deck.history);
+    var id = deck.order.shift();
+    deck.history.push(id);
+    if (deck.history.length > 40) deck.history = deck.history.slice(-40);
+    saveDeck();
+    return id;
+  }
+
+  // Tranh đúng không nằm cùng một bên quá 2 lần liền.
+  var sides = [];
+  function correctSide() {
+    var n = sides.length;
+    var side = (n >= 2 && sides[n - 1] === sides[n - 2]) ? 1 - sides[n - 1] : rand(2);
+    sides.push(side);
+    if (sides.length > 10) sides.shift();
+    return side;
+  }
+
+  if (typeof localStorage !== 'undefined') loadDeck();
 
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
@@ -172,19 +315,18 @@ var Games = (function () {
   // ================= Mini-game 1: Từ trái nghĩa =================
   var opposite = {
     key: 'opposite',
-    make: function (prev) {
-      var group;
-      do { group = pick(PAIRS); } while (prev && prev.group === group);
-      var item = pick(group.items);
-      var color = pick(item.colors);
-      var askFirst = Math.random() < 0.5;
+    make: function () {
+      var id = nextQuestion();
+      var item = OPPOSITES[itemOf(id)];
+      var askFirst = wordOf(id) === 0;
       var word = item.words[askFirst ? 0 : 1];
-      var options = shuffle([true, false]).map(function (isFirst) {
-        return { svg: item.draw(isFirst, color), correct: isFirst === askFirst };
-      });
+      var color = pick(item.colors);
+      var right = { svg: item.draw(askFirst, color), correct: true };
+      var wrongOpt = { svg: item.draw(!askFirst, color), correct: false };
+      var options = correctSide() === 0 ? [right, wrongOpt] : [wrongOpt, right];
       var speech = vary('q1', Q_OPPOSITE)(item.name, word, item.link || '');
       return {
-        group: group,
+        id: id,
         item: item,
         word: word,
         otherWord: item.words[askFirst ? 1 : 0],
@@ -246,6 +388,21 @@ var Games = (function () {
     return [thing(others[0], pick(others[0].colors)), thing(others[1], pick(others[1].colors))];
   }
 
+  // Các kiểu bố trí 4 tranh của trò 3 (A, B, C là các tranh khác nhau):
+  //   AABC — 1 cặp giống + 2 tranh khác     AABB — 2 cặp giống nhau
+  //   AAAB — 3 tranh giống + 1 tranh lẻ
+  // Tìm giống: cặp giống nào cũng đúng. Tìm khác: cặp khác nhau nào cũng đúng.
+  var LAYOUTS_SAME = ['AABC', 'AABC', 'AABB', 'AABB', 'AAAB'];
+  var LAYOUTS_DIFF = ['AAAB', 'AAAB', 'AABC', 'AABB'];
+
+  function buildLayout(layout, a) {
+    var copy = function (x) { return thing(x.type, x.color); };
+    if (layout === 'AAAB') return [a, copy(a), copy(a), differentFrom(a, 0.7)];
+    var others = twoOthers(a);
+    if (layout === 'AABB') return [a, copy(a), others[0], copy(others[0])];
+    return [a, copy(a), others[0], others[1]];
+  }
+
   function signature(items) {
     return items.map(function (x) { return x.type.key + x.color; }).join('|');
   }
@@ -284,31 +441,27 @@ var Games = (function () {
     make: function (prev) {
       var r, tries = 0;
       do {
-        var t = pick(THINGS);
+        var t;
+        do { t = pick(THINGS); } while (prev && prev.baseType === t);
         var a = thing(t, pick(t.colors));
-        var mode = Math.random() < 0.6 ? 'same' : 'diff';
-        var items;
-        if (mode === 'same') {
-          // Đúng 1 cặp giống nhau; 2 tranh còn lại khác cặp đó và khác nhau.
-          items = [a, thing(t, a.color)].concat(twoOthers(a));
-        } else {
-          // 3 tranh giống nhau và 1 tranh lẻ.
-          items = [a, thing(t, a.color), thing(t, a.color), differentFrom(a, 0.7)];
-        }
+        var mode = Math.random() < 0.55 ? 'same' : 'diff';
+        var layout = pick(mode === 'same' ? LAYOUTS_SAME : LAYOUTS_DIFF);
         r = {
           kind: 'pick2',
           mode: mode,
+          layout: layout,
+          baseType: t,
           cols: 2, // luôn xếp khung 2 x 2
           word: mode === 'same' ? 'giống nhau' : 'khác nhau',
-          options: shuffle(items),
-          sig: mode + signature(items)
+          options: shuffle(buildLayout(layout, a))
         };
+        r.sig = mode + signature(r.options);
       } while (prev && prev.sig === r.sig && ++tries < 10);
       r.speech = vary('q3', Q_FINDPAIR)(r.word);
       r.text = r.speech.replace('hai tranh', '2 tranh');
       return r;
     },
-    // Đúng khi: tìm giống → hai tranh cùng loại cùng màu; tìm khác → có tranh lẻ.
+    // Đúng khi: tìm giống → hai tranh cùng loại cùng màu; tìm khác → hai tranh không giống nhau.
     check: function (round, a, b) {
       if (round.mode === 'same') return sameThing(a, b);
       return !sameThing(a, b);
