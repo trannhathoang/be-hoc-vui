@@ -130,6 +130,7 @@ async function playGame(page, key, label, dev) {
 
   // Trả lời sai: không được sao, được chọn lại.
   const id0 = await roundId(page);
+  const snd0 = await sounds(page);
   if (key === 'samediff') {
     const ans = await page.evaluate(() => KidGame.state.round.answer);
     await page.tap(ans === 'same' ? '.answer-btn.diff' : '.answer-btn.same');
@@ -139,8 +140,9 @@ async function playGame(page, key, label, dev) {
   await page.waitForTimeout(300);
   const wrongShown = await page.$('.wrong');
   const lockedAfterWrong = await page.evaluate(() => KidGame.state.locked);
-  check(wrongShown && lockedAfterWrong && (await stars(page)) === 0 && (await roundId(page)) === id0,
-    `${label} — trả lời sai: tranh mờ, không cộng sao, giữ câu hỏi, chờ nghe gợi ý`);
+  const ehPlayed = (await sounds(page)).eh === snd0.eh + 1;
+  check(wrongShown && ehPlayed && lockedAfterWrong && (await stars(page)) === 0 && (await roundId(page)) === id0,
+    `${label} — trả lời sai: kêu "è è", tranh mờ, không cộng sao, giữ câu hỏi, chờ nghe gợi ý`);
   await page.waitForFunction(() => !KidGame.state.locked, null, { timeout: 10000 });
 
   // Trả lời đúng hai lượt liền.
@@ -154,12 +156,73 @@ async function playGame(page, key, label, dev) {
     }
     await page.waitForTimeout(250);
     if (n === 1) await page.screenshot({ path: path.join(OUT, `${dev} - ${key} - dung.png`) });
-    check((await stars(page)) === n && (await page.$('.card.correct')), `${label} — trả lời đúng lượt ${n}: viền xanh, ${n} sao`);
+    check((await stars(page)) === n && (await page.$('.card.correct')) && (await sounds(page)).ting >= snd0.ting + n,
+      `${label} — trả lời đúng lượt ${n}: kêu "ting ting", viền xanh, ${n} sao`);
     await waitNextRound(page, before);
   }
 
   await page.tap('#btn-home');
-  await page.waitForSelector('#home.active');
+  await page.waitForSelector('#games.active');
+}
+
+const sounds = (page) => page.evaluate(() => Object.assign({}, window.__sounds));
+
+// Tùy chỉnh: tắt âm báo sai/đúng thì chơi không phát tiếng; bật lại thì nghe thử.
+// Giới thiệu: đủ thông tin, link GitHub phải qua cổng phụ huynh.
+async function testSettingsAndAbout(page, dev) {
+  await page.tap('#games .btn-main');
+  await page.waitForSelector('#main.active');
+  await page.tap('.main-btn[data-to="settings"]');
+  await page.waitForSelector('#settings.active');
+  await checkInside(page, '#settings .segmented button', 'Tùy chỉnh — nút Bật/Tắt');
+  await page.screenshot({ path: path.join(OUT, `${dev} - settings.png`) });
+  await page.tap('[data-setting="wrongSound"] [data-value="off"]');
+  await page.tap('[data-setting="correctSound"] [data-value="off"]');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('be-hoc-vui:settings')));
+  check(saved && saved.wrongSound === 'off' && saved.correctSound === 'off', 'Tùy chỉnh — lưu lựa chọn Tắt vào máy');
+
+  // Chơi thử khi đã tắt cả hai âm báo.
+  await page.tap('#settings .btn-main');
+  await page.tap('.main-btn[data-to="games"]');
+  await page.tap('.menu-card[data-game="opposite"]');
+  await page.waitForFunction(() => KidGame.state.round && !KidGame.state.locked, null, { timeout: 10000 });
+  const s0 = await sounds(page);
+  await tapCards(page, await page.evaluate(answerFor, false));
+  await page.waitForTimeout(300);
+  await page.waitForFunction(() => !KidGame.state.locked, null, { timeout: 10000 });
+  await tapCards(page, await page.evaluate(answerFor, true));
+  await page.waitForTimeout(300);
+  const s1 = await sounds(page);
+  check(s1.eh === s0.eh && s1.ting === s0.ting && (await stars(page)) === 1,
+    'Đã tắt âm: chọn sai không kêu "è è", chọn đúng không kêu "ting ting" (vẫn được sao)');
+  await page.tap('#btn-home');
+  await page.waitForSelector('#games.active');
+
+  // Bật lại: chạm "Bật" là nghe thử ngay.
+  await page.tap('#games .btn-main');
+  await page.tap('.main-btn[data-to="settings"]');
+  const s2 = await sounds(page);
+  await page.tap('[data-setting="wrongSound"] [data-value="on"]');
+  await page.tap('[data-setting="correctSound"] [data-value="on"]');
+  const s3 = await sounds(page);
+  check(s3.eh === s2.eh + 1 && s3.ting === s2.ting + 1, 'Bật lại âm báo sai/đúng: phát thử "è è" và "ting ting"');
+
+  // Giới thiệu.
+  await page.tap('#settings .btn-main');
+  await page.tap('.main-btn[data-to="about"]');
+  await page.waitForSelector('#about.active');
+  const text = await page.textContent('#about');
+  check(/Hoang Tran/.test(text) && /github\.com\/trannhathoang/.test(text) && /Chúc bé học vui!/.test(text),
+    'Giới thiệu — tên, link GitHub, lời chúc');
+  await checkInside(page, '#about .panel', 'Giới thiệu — khung thông tin');
+  await page.screenshot({ path: path.join(OUT, `${dev} - about.png`) });
+  await page.tap('#btn-github');
+  const gateOpen = await page.isVisible('#parent-gate');
+  await page.tap('#gate-cancel');
+  const gateClosed = !(await page.isVisible('#parent-gate'));
+  check(gateOpen && gateClosed, 'Link GitHub phải qua cổng phụ huynh (mở / huỷ được)');
+  await page.tap('#about .btn-main');
+  await page.waitForSelector('#main.active');
 }
 
 async function main() {
@@ -186,6 +249,11 @@ async function main() {
     // Ghi lại mọi câu game đọc ra để đối chiếu với giọng thu sẵn.
     await page.evaluate(() => {
       window.__spoken = [];
+      window.__sounds = { eh: 0, ting: 0 };
+      ['eh', 'ting'].forEach((k) => {
+        const f = Sound[k];
+        Sound[k] = function () { window.__sounds[k]++; return f.apply(Sound, arguments); };
+      });
       const speak = Voice.speak;
       // WebKit trên Windows không có Web Audio nên không biết lúc đọc xong:
       // giả lập mỗi câu đọc mất 1,5 giây.
@@ -196,12 +264,17 @@ async function main() {
       };
     });
     await page.waitForTimeout(1500);
-    await page.screenshot({ path: path.join(OUT, `${dev.name} - home.png`) });
-    await checkInside(page, '.menu-card', 'Trang chủ — 3 thẻ trò chơi');
+    await page.screenshot({ path: path.join(OUT, `${dev.name} - main.png`) });
+    await checkInside(page, '.main-btn', 'Màn hình chính — 3 nút Vào chơi / Tùy chỉnh / Giới thiệu');
+    await page.tap('.main-btn[data-to="games"]');
+    await page.waitForSelector('#games.active');
+    await page.screenshot({ path: path.join(OUT, `${dev.name} - games.png`) });
+    await checkInside(page, '.menu-card', 'Danh sách — 3 thẻ trò chơi');
 
     await playGame(page, 'opposite', 'Trò 1 (trái nghĩa)', dev.name);
     await playGame(page, 'samediff', 'Trò 2 (giống/khác)', dev.name);
     await playGame(page, 'findpair', 'Trò 3 (tìm 2 tranh)', dev.name);
+    await testSettingsAndAbout(page, dev.name);
 
     const missing = await page.evaluate(() => fetch('audio/voice/manifest.json').then((r) => r.json())
       .then((m) => window.__spoken.filter((t) => !m[t])));

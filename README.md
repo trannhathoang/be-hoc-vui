@@ -10,7 +10,7 @@ Game học cho bé 3–5 tuổi, gồm 3 mini-game:
    - "Tìm 2 tranh khác nhau": 3 tranh giống + 1 tranh lẻ; 2 tranh giống + 2 tranh khác hẳn; 2 cặp giống nhau. Cặp khác nhau nào cũng đúng.
 
 Trả lời đúng: tiếng *ting-ting*, pháo hoa, thêm 1 ngôi sao, lời khen, tự sang câu mới.
-Trả lời sai: tiếng "bộp" nhỏ, tranh mờ đi, game đọc lời gợi ý; bé chỉ chọn lại được khi đọc xong.
+Trả lời sai: tiếng "è è", tranh mờ đi, game đọc lời gợi ý; bé chỉ chọn lại được khi đọc xong.
 Trong lúc game đọc câu hỏi, tranh hơi mờ và chưa chạm được, để bé nghe hết câu rồi mới chọn (tránh chọn bừa).
 
 Câu hỏi, lời khen và lời động viên có nhiều mẫu câu khác nhau (khoảng 630 câu) để bé làm quen với nhiều cách diễn đạt, ví dụ:
@@ -19,7 +19,15 @@ Câu hỏi, lời khen và lời động viên có nhiều mẫu câu khác nhau
 - Báo sai có gợi ý: "Đây là cái bát nhỏ. Bé tìm cái bát to nhé!" / "Hai tranh này giống nhau mà. Bé tìm hai tranh khác nhau nhé!"
 
 Game không dùng lại mẫu câu vừa nói ngay trước đó.
-Nút loa (góc phải) để nghe lại câu hỏi, nút ngôi nhà (góc trái) để về trang chủ.
+Nút loa (góc phải) để nghe lại câu hỏi, nút ngôi nhà (góc trái) để về danh sách trò chơi.
+
+## Màn hình chính
+
+- **Vào chơi**: danh sách 3 trò chơi.
+- **Tùy chỉnh**: bật/tắt âm thanh khi trả lời sai (tiếng "è è") và khi trả lời đúng (tiếng "ting ting" và tiếng pháo hoa). Tắt là im lặng hẳn; lựa chọn được lưu trong máy. Chạm "Bật" để nghe thử.
+- **Giới thiệu**: tác giả Hoang Tran, link GitHub, lời chúc. Link GitHub có cổng phụ huynh (phải trả lời đúng một phép cộng) để bé không vô tình mở ra ngoài.
+
+Ở các màn Vào chơi, Tùy chỉnh, Giới thiệu, nút ngôi nhà (góc trái) quay về màn hình chính.
 
 ## Vì sao là web app
 
@@ -69,7 +77,7 @@ Sau đó mở địa chỉ https bằng Safari trên từng máy → **Thêm và
 | --- | --- |
 | `index.html` | Khung trang: trang chủ và màn hình chơi |
 | `css/style.css` | Giao diện, tự co giãn theo màn hình dọc/ngang, điện thoại/iPad |
-| `js/audio.js` | Tiếng ting-ting, tiếng "bộp" khi sai, pháo nổ (tạo bằng Web Audio) và giọng đọc tiếng Việt |
+| `js/audio.js` | Tiếng ting-ting, tiếng "è è" khi sai, pháo nổ (tạo bằng Web Audio) và giọng đọc tiếng Việt |
 | `js/art.js` | Hình vẽ các đồ vật (SVG): bát, bóng, táo, cá, bút chì, thước, sâu, cây, nhà, nến, ô tô, ngôi sao, hoa, bóng bay |
 | `js/fx.js` | Hiệu ứng pháo hoa |
 | `js/games.js` | Nội dung và luật của 3 mini-game, câu hỏi tiếng Việt |

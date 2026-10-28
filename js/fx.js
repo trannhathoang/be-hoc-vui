@@ -3,6 +3,7 @@ var Fireworks = (function () {
   var canvas, ctx, W, H, dpr;
   var particles = [];
   var running = false;
+  var timers = [];
   var PALETTE = ['#ff4d4d', '#ffd23f', '#3dcc6b', '#3fa9f5', '#9b5de5', '#ff6fb5', '#ff9f1c', '#ffffff'];
 
   function resize() {
@@ -66,18 +67,28 @@ var Fireworks = (function () {
   }
 
   // Bắn vài chùm pháo hoa lệch thời gian nhau.
-  function celebrate() {
+  // withSound = false: chỉ bắn pháo hoa, không có tiếng nổ (khi tắt âm báo đúng).
+  function celebrate(withSound) {
     var shots = 4;
+    timers = [];
     for (var i = 0; i < shots; i++) {
       (function (k) {
-        setTimeout(function () {
+        timers.push(setTimeout(function () {
           burst(W * (0.15 + Math.random() * 0.7), H * (0.15 + Math.random() * 0.4));
-          if (k % 2 === 0) Sound.crackle();
+          if (withSound && k % 2 === 0) Sound.crackle();
           if (!running) { running = true; requestAnimationFrame(frame); }
-        }, k * 220);
+        }, k * 220));
       })(i);
     }
   }
 
-  return { init: init, celebrate: celebrate };
+  // Dừng ngay (khi rời màn chơi giữa lúc đang bắn pháo hoa).
+  function stop() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    particles = [];
+    if (ctx) ctx.clearRect(0, 0, W, H);
+  }
+
+  return { init: init, celebrate: celebrate, stop: stop };
 })();

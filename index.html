@@ -18,11 +18,35 @@
 <body>
 
 <!-- Màn hình chính -->
-<section id="home" class="screen active">
+<section id="main" class="screen active">
   <div class="home-title">
     <h1>Bé Học Vui</h1>
-    <p>Chọn trò chơi nhé!</p>
   </div>
+  <div class="main-art" id="art-main"></div>
+  <div class="main-buttons">
+    <button class="main-btn play" data-to="games">
+      <svg viewBox="0 0 48 48"><path d="M16 10 L38 24 L16 38 Z" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></svg>
+      <span>Vào chơi</span>
+    </button>
+    <button class="main-btn settings" data-to="settings">
+      <svg viewBox="0 0 48 48"><g stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M8 14 H40 M8 24 H40 M8 34 H40"/></g><g fill="#5b8def" stroke="#fff" stroke-width="4"><circle cx="30" cy="14" r="5"/><circle cx="16" cy="24" r="5"/><circle cx="26" cy="34" r="5"/></g></svg>
+      <span>Tùy chỉnh</span>
+    </button>
+    <button class="main-btn about" data-to="about">
+      <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="#fff" stroke-width="4"/><circle cx="24" cy="15" r="3" fill="#fff"/><path d="M24 22 V35" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+      <span>Giới thiệu</span>
+    </button>
+  </div>
+  <p id="voice-warning" class="voice-warning hidden"></p>
+</section>
+
+<!-- Danh sách trò chơi -->
+<section id="games" class="screen">
+  <header class="topbar">
+    <button class="round-btn btn-main" aria-label="Về màn hình chính"></button>
+    <h2 class="screen-title">Chọn trò chơi</h2>
+    <span class="topbar-spacer"></span>
+  </header>
   <div class="menu">
     <button class="menu-card c1" data-game="opposite">
       <span class="menu-art" id="art-opposite"></span>
@@ -37,13 +61,64 @@
       <span class="menu-label">Tìm 2 tranh</span>
     </button>
   </div>
-  <p id="voice-warning" class="voice-warning hidden"></p>
 </section>
+
+<!-- Tùy chỉnh -->
+<section id="settings" class="screen">
+  <header class="topbar">
+    <button class="round-btn btn-main" aria-label="Về màn hình chính"></button>
+    <h2 class="screen-title">Tùy chỉnh</h2>
+    <span class="topbar-spacer"></span>
+  </header>
+  <div class="panel">
+    <div class="setting">
+      <div class="setting-label">Âm thanh khi trả lời sai<small>Tiếng "è è"</small></div>
+      <div class="segmented" data-setting="wrongSound">
+        <button data-value="on">Bật</button><button data-value="off">Tắt</button>
+      </div>
+    </div>
+    <div class="setting">
+      <div class="setting-label">Âm thanh khi trả lời đúng<small>Tiếng "ting ting" và tiếng pháo hoa</small></div>
+      <div class="segmented" data-setting="correctSound">
+        <button data-value="on">Bật</button><button data-value="off">Tắt</button>
+      </div>
+    </div>
+    <p class="hint">Chạm "Bật" để nghe thử.</p>
+  </div>
+</section>
+
+<!-- Giới thiệu -->
+<section id="about" class="screen">
+  <header class="topbar">
+    <button class="round-btn btn-main" aria-label="Về màn hình chính"></button>
+    <h2 class="screen-title">Giới thiệu</h2>
+    <span class="topbar-spacer"></span>
+  </header>
+  <div class="panel about">
+    <img class="about-icon" src="icons/icon-192.png" alt="">
+    <div class="about-name">Hoang Tran</div>
+    <button id="btn-github" class="link-btn">
+      <svg viewBox="0 0 24 24"><path d="M10 14 L14 10 M9 7 L11 5 A4 4 0 0 1 19 13 L17 15 M15 17 L13 19 A4 4 0 0 1 5 11 L7 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <span>github.com/trannhathoang</span>
+    </button>
+    <p class="about-message">Chúc bé học vui!</p>
+  </div>
+</section>
+
+<!-- Cổng phụ huynh: phải trả lời phép cộng mới mở được đường link ra ngoài -->
+<div id="parent-gate" class="gate hidden">
+  <div class="gate-box">
+    <p class="gate-title">Dành cho bố mẹ</p>
+    <p class="gate-q" id="gate-q"></p>
+    <div class="gate-choices" id="gate-choices"></div>
+    <button class="gate-cancel" id="gate-cancel">Huỷ</button>
+  </div>
+</div>
 
 <!-- Màn hình chơi -->
 <section id="play" class="screen">
   <header class="topbar">
-    <button id="btn-home" class="round-btn" aria-label="Về trang chủ">
+    <button id="btn-home" class="round-btn" aria-label="Về danh sách trò chơi">
       <svg viewBox="0 0 48 48"><path d="M8 24 L24 9 L40 24" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 22 V39 H35 V22" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><rect x="20" y="28" width="8" height="11" fill="#fff"/></svg>
     </button>
     <div class="stars" id="stars"><span class="star-icon">★</span><span id="star-count">0</span></div>

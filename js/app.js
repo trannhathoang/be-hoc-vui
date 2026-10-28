@@ -43,14 +43,93 @@
     Sound.unlock();
   }
 
+  // ---------- Tùy chỉnh (lưu trong máy) ----------
+  var Settings = (function () {
+    var KEY = 'be-hoc-vui:settings';
+    var DEFAULTS = { wrongSound: 'on', correctSound: 'on' };
+    var values = {};
+    try { values = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { values = {}; }
+    return {
+      get: function (k) { return values[k] || DEFAULTS[k]; },
+      on: function (k) { return (values[k] || DEFAULTS[k]) === 'on'; },
+      set: function (k, v) {
+        values[k] = v;
+        try { localStorage.setItem(KEY, JSON.stringify(values)); } catch (e) { /* bỏ qua */ }
+      }
+    };
+  })();
+
+  function renderSettings() {
+    var groups = document.querySelectorAll('.segmented');
+    for (var i = 0; i < groups.length; i++) {
+      var value = Settings.get(groups[i].getAttribute('data-setting'));
+      var btns = groups[i].children;
+      for (var j = 0; j < btns.length; j++) {
+        btns[j].classList.toggle('selected', btns[j].getAttribute('data-value') === value);
+      }
+    }
+  }
+
+  function initSettings() {
+    var btns = document.querySelectorAll('.segmented button');
+    for (var i = 0; i < btns.length; i++) {
+      (function (btn) {
+        onTap(btn, function () {
+          var key = btn.parentNode.getAttribute('data-setting');
+          var value = btn.getAttribute('data-value');
+          unlockAudio();
+          Settings.set(key, value);
+          renderSettings();
+          // Bật thì cho nghe thử ngay.
+          if (value === 'on') {
+            if (key === 'wrongSound') Sound.eh();
+            if (key === 'correctSound') Sound.ting();
+          }
+        });
+      })(btns[i]);
+    }
+    renderSettings();
+  }
+
+  // ---------- Cổng phụ huynh trước khi mở đường link ra ngoài ----------
+  function parentGate(onPass) {
+    var a = 2 + Math.floor(Math.random() * 6), b = 2 + Math.floor(Math.random() * 6), sum = a + b;
+    var choices = [sum, sum + 1 + Math.floor(Math.random() * 2), sum - 1 - Math.floor(Math.random() * 2)];
+    choices.sort(function () { return Math.random() - 0.5; });
+    $('gate-q').textContent = a + ' + ' + b + ' = ?';
+    var box = $('gate-choices');
+    box.innerHTML = '';
+    choices.forEach(function (n) {
+      var btn = document.createElement('button');
+      btn.textContent = n;
+      onTap(btn, function () {
+        $('parent-gate').classList.add('hidden');
+        if (n === sum) onPass();
+      });
+      box.appendChild(btn);
+    });
+    $('parent-gate').classList.remove('hidden');
+  }
+
+  var GITHUB_URL = 'https://github.com/trannhathoang';
+
   function showScreen(id) {
     var screens = document.querySelectorAll('.screen');
     for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
     $(id).classList.add('active');
   }
 
-  // ---------- Trang chủ ----------
+  // ---------- Màn hình chính & danh sách trò chơi ----------
+  var HOME_SVG = '<svg viewBox="0 0 48 48"><path d="M8 24 L24 9 L40 24" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M13 22 V39 H35 V22" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><rect x="20" y="28" width="8" height="11" fill="#fff"/></svg>';
+
   function drawMenuArt() {
+    $('art-main').innerHTML = Art.compose(520, [
+      { inner: Art.ball(Art.COLORS.orange), x: 4, y: 60, s: 0.62 },
+      { inner: Art.star(Art.COLORS.yellow), x: 120, y: 16, s: 0.7 },
+      { inner: Art.apple(Art.COLORS.red), x: 250, y: 56, s: 0.64 },
+      { inner: Art.car(Art.COLORS.blue), x: 372, y: 64, s: 0.72 }
+    ]);
     $('art-opposite').innerHTML = Art.compose(360, [
       { inner: Art.ball(Art.COLORS.orange), x: 10, y: 14, s: 0.85 },
       { inner: Art.ball(Art.COLORS.orange), x: 225, y: 88, s: 0.45 }
@@ -94,12 +173,18 @@
     nextRound();
   }
 
+  // Nút Home trong lúc chơi: về danh sách trò chơi (như trước) để bé đổi trò nhanh.
   function goHome() {
     state.game = null;
     state.roundId++;
     Voice.stop();
     $('play').classList.remove('listening');
-    showScreen('home');
+    Fireworks.stop();
+    showScreen('games');
+  }
+
+  function goMain() {
+    showScreen('main');
     checkVoice();
   }
 
@@ -235,8 +320,9 @@
     state.celebrating = true;
     var id = state.roundId;
     els.forEach(function (el) { el.classList.remove('selected'); el.classList.add('correct'); });
-    Sound.ting();
-    Fireworks.celebrate();
+    var withSound = Settings.on('correctSound');
+    if (withSound) Sound.ting();
+    Fireworks.celebrate(withSound);
     state.stars++;
     $('star-count').textContent = state.stars;
     var starsEl = $('stars');
@@ -257,12 +343,13 @@
     setTimeout(advance, 5000); // phòng khi giọng đọc không báo kết thúc
   }
 
-  // Trả lời sai: tiếng "bộp" nhỏ, tranh mờ đi, rồi đọc lời gợi ý — chỉ chọn lại được khi đọc xong.
+  // Trả lời sai: tiếng "è è" (nếu bật trong Tùy chỉnh), tranh mờ đi, rồi đọc lời gợi ý —
+  // chỉ chọn lại được khi đọc xong.
   function wrong(els) {
     state.locked = true;
     var id = state.roundId;
     Voice.stop();
-    Sound.thud();
+    if (Settings.on('wrongSound')) Sound.eh();
     els.forEach(function (el) { el.classList.add('wrong'); });
     setTimeout(function () {
       els.forEach(function (el) { el.classList.remove('wrong'); });
@@ -285,6 +372,24 @@
     }
     onTap($('btn-home'), goHome);
     onTap($('btn-speak'), function () { unlockAudio(); speakQuestion(); });
+
+    // Màn hình chính: Vào chơi / Tùy chỉnh / Giới thiệu; nút Home ở các màn phụ về màn hình chính.
+    var mainBtns = document.querySelectorAll('.main-btn');
+    for (var m = 0; m < mainBtns.length; m++) {
+      (function (btn) {
+        onTap(btn, function () { unlockAudio(); showScreen(btn.getAttribute('data-to')); });
+      })(mainBtns[m]);
+    }
+    var backBtns = document.querySelectorAll('.btn-main');
+    for (var k = 0; k < backBtns.length; k++) {
+      backBtns[k].innerHTML = HOME_SVG;
+      onTap(backBtns[k], goMain);
+    }
+    initSettings();
+    onTap($('btn-github'), function () {
+      parentGate(function () { window.open(GITHUB_URL, '_blank'); });
+    });
+    onTap($('gate-cancel'), function () { $('parent-gate').classList.add('hidden'); });
     var answers = document.querySelectorAll('.answer-btn');
     for (var j = 0; j < answers.length; j++) {
       (function (btn) {

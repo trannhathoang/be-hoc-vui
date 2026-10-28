@@ -176,6 +176,197 @@ button {
   }
 }
 
+/* ---------- Màn hình chính: 3 nút lớn ---------- */
+#main { -webkit-justify-content: center; justify-content: center; }
+#main .home-title { margin-top: 0; }
+#main .home-title h1 { font-size: 14vmin; font-size: calc(min(14vmin, 84px)); }
+.main-art {
+  width: 100%;
+  max-width: 520px;
+  height: 20vh;
+  margin: 1vh 0 3vh;
+}
+.main-art svg { width: 100%; height: 100%; display: block; }
+.main-buttons {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  width: 100%;
+}
+.main-btn {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  width: 78vw;
+  max-width: 420px;
+  height: 11vh;
+  min-height: 64px;
+  max-height: 96px;
+  margin: 1.2vh 0;
+  border-radius: 999px;
+  font-size: 7vmin;
+  font-size: calc(min(7vmin, 36px));
+  font-weight: 900;
+  color: #fff;
+  box-shadow: var(--shadow);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+  -webkit-transition: -webkit-transform 0.12s;
+  transition: transform 0.12s;
+}
+.main-btn svg { width: 1.3em; height: 1.3em; margin-right: 0.45em; -webkit-flex-shrink: 0; flex-shrink: 0; }
+.main-btn.play { background: #3dcc6b; }
+.main-btn.settings { background: #5b8def; }
+.main-btn.about { background: #9b6cf0; }
+.main-btn.pressed { -webkit-transform: scale(0.95); transform: scale(0.95); }
+
+/* Điện thoại xoay ngang: 3 nút trên một hàng */
+@media (orientation: landscape) and (max-height: 560px) {
+  .main-art { height: 24vh; }
+  .main-buttons { -webkit-flex-direction: row; flex-direction: row; }
+  .main-btn { width: 28vw; height: 22vh; margin: 0 1.2vw; font-size: 6vmin; }
+}
+
+/* ---------- Thanh tiêu đề của các màn hình phụ ---------- */
+.screen-title {
+  -webkit-flex: 1;
+  flex: 1;
+  margin: 0;
+  font-size: 6vmin;
+  font-size: calc(min(6vmin, 34px));
+  font-weight: 900;
+  text-align: center;
+}
+.topbar-spacer { width: 60px; -webkit-flex-shrink: 0; flex-shrink: 0; }
+
+/* ---------- Tùy chỉnh & Giới thiệu ---------- */
+.panel {
+  width: 100%;
+  max-width: 560px;
+  margin-top: 3vh;
+  padding: 8px 20px 18px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+.setting {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+.setting + .setting { border-top: 2px solid #eef2f7; }
+.setting-label { margin-right: 12px; font-size: 20px; font-weight: 800; }
+.setting-label small { display: block; margin-top: 4px; font-size: 14px; font-weight: 600; color: #6b7a99; }
+.segmented {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  padding: 4px;
+  background: #eef2f7;
+  border-radius: 999px;
+}
+.segmented button {
+  min-width: 76px;
+  height: 48px;
+  border-radius: 999px;
+  background: transparent;
+  color: #6b7a99;
+  font-size: 18px;
+  font-weight: 800;
+}
+.segmented button + button { margin-left: 4px; }
+.segmented button.selected[data-value="on"] { background: #3dcc6b; color: #fff; }
+.segmented button.selected[data-value="off"] { background: #8a93a3; color: #fff; }
+.hint { margin: 4px 0 0; text-align: center; font-size: 15px; color: #6b7a99; }
+
+.panel.about {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  align-items: center;
+  padding-top: 26px;
+  text-align: center;
+}
+.about-icon { width: 96px; height: 96px; border-radius: 22px; box-shadow: var(--shadow); }
+.about-name { margin-top: 16px; font-size: 32px; font-weight: 900; }
+.link-btn {
+  display: -webkit-inline-flex;
+  display: inline-flex;
+  -webkit-align-items: center;
+  align-items: center;
+  margin-top: 10px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #3a66d1;
+  font-size: 18px;
+  font-weight: 800;
+}
+.link-btn svg { width: 22px; height: 22px; margin-right: 8px; }
+.about-message { margin: 22px 0 4px; font-size: 30px; font-weight: 900; color: #ff6b6b; }
+
+/* Màn hình thấp (điện thoại xoay ngang): thu gọn khung Giới thiệu & Tùy chỉnh */
+@media (max-height: 560px) {
+  .panel { margin-top: 2vh; }
+  .panel.about { padding-top: 14px; }
+  .about-icon { width: 56px; height: 56px; border-radius: 14px; }
+  .about-name { margin-top: 10px; font-size: 26px; }
+  .link-btn { margin-top: 6px; padding: 8px 16px; }
+  .about-message { margin: 12px 0 2px; font-size: 24px; }
+  .setting { padding: 10px 0; }
+}
+
+/* Cổng phụ huynh */
+.gate {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  background: rgba(30, 40, 70, 0.45);
+}
+.gate-box {
+  width: 86vw;
+  max-width: 380px;
+  padding: 22px;
+  background: #fff;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.gate-title { margin: 0; font-size: 16px; font-weight: 800; color: #6b7a99; }
+.gate-q { margin: 10px 0 16px; font-size: 34px; font-weight: 900; }
+.gate-choices { display: -webkit-flex; display: flex; -webkit-justify-content: center; justify-content: center; }
+.gate-choices button {
+  width: 72px;
+  height: 60px;
+  margin: 0 6px;
+  border-radius: 16px;
+  background: #eef4ff;
+  color: var(--ink);
+  font-size: 26px;
+  font-weight: 900;
+}
+.gate-cancel { margin-top: 16px; padding: 8px 16px; background: none; color: #6b7a99; font-size: 17px; font-weight: 800; }
+
 .voice-warning {
   margin: 0 0 1vh;
   padding: 8px 14px;
