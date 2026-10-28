@@ -597,43 +597,90 @@ var Art = (function () {
     return s;
   }
 
-  // Nóng – lạnh: cái nồi (vạch đỏ + hơi + lửa / vạch xanh + băng tuyết).
-  function pot(hot) {
-    var s = '<rect x="22" y="100" width="26" height="10" rx="5" fill="#5a5f6b"/><rect x="152" y="100" width="26" height="10" rx="5" fill="#5a5f6b"/>' +
-      '<rect x="40" y="92" width="120" height="72" rx="12" fill="#9aa5b5"/>' +
-      '<rect x="40" y="118" width="120" height="12" fill="' + (hot ? '#ff6b6b' : '#3fa9f5') + '"/>' +
-      '<ellipse cx="100" cy="92" rx="64" ry="10" fill="#b5bfcc"/><ellipse cx="100" cy="80" rx="11" ry="6" fill="#5a5f6b"/>';
+  // Nóng – lạnh (thời tiết): trời nắng chói chang, bạn nhỏ đổ mồ hôi /
+  // gió mùa thổi, tuyết rơi, bạn nhỏ đội mũ quàng khăn co ro.
+  function weather(hot) {
+    var skin = '#ffd2a6';
+    var s = '<rect x="6" y="6" width="188" height="188" rx="18" fill="' + (hot ? '#ffd98a' : '#b9cfe2') + '"/>';
     if (hot) {
-      s += '<g fill="none" stroke="#aab3c0" stroke-width="5" stroke-linecap="round">' +
-        '<path d="M76 66 q-10 -12 0 -24 q10 -12 0 -24"/><path d="M124 66 q-10 -12 0 -24 q10 -12 0 -24"/></g>' +
-        '<path d="M64 192 q-8 -14 4 -24 q2 10 8 6 q6 -12 0 -18 q18 8 12 36 z M108 192 q-10 -16 4 -28 q2 12 10 8 q4 -10 -2 -16 q22 10 12 36 z" fill="#ff9f1c"/>' +
-        '<path d="M70 192 q-2 -8 4 -12 q4 6 6 12 z M116 192 q-2 -9 5 -14 q4 7 6 14 z" fill="#ffe066"/>';
+      s += '<g stroke="#ff9f1c" stroke-width="5" stroke-linecap="round">';
+      for (var i = 0; i < 12; i++) {
+        var a = i * Math.PI / 6;
+        s += '<line x1="' + (54 + 30 * Math.cos(a)).toFixed(1) + '" y1="' + (54 + 30 * Math.sin(a)).toFixed(1) +
+          '" x2="' + (54 + 42 * Math.cos(a)).toFixed(1) + '" y2="' + (54 + 42 * Math.sin(a)).toFixed(1) + '"/>';
+      }
+      s += '</g><circle cx="54" cy="54" r="24" fill="#ffd23f" stroke="#ffb020" stroke-width="4"/>' +
+        '<path d="M6 168 Q100 156 194 168 L194 176 Q194 194 176 194 L24 194 Q6 194 6 176 Z" fill="#f2c46b"/>' +
+        '<g fill="none" stroke="#ffb060" stroke-width="3" stroke-linecap="round">' +
+        '<path d="M22 150 q6 -8 0 -16 q-6 -8 0 -16"/><path d="M170 150 q6 -8 0 -16 q-6 -8 0 -16"/><path d="M60 160 q5 -6 0 -12"/></g>' +
+        // bạn nhỏ mặc áo cộc, đổ mồ hôi
+        '<rect x="104" y="150" width="10" height="28" rx="4" fill="' + skin + '"/><rect x="122" y="150" width="10" height="28" rx="4" fill="' + skin + '"/>' +
+        '<rect x="100" y="146" width="36" height="14" rx="3" fill="#3fa9f5"/>' +
+        '<rect x="82" y="122" width="10" height="26" rx="5" fill="' + skin + '" transform="rotate(20 87 122)"/>' +
+        '<rect x="144" y="122" width="10" height="26" rx="5" fill="' + skin + '" transform="rotate(-20 149 122)"/>' +
+        '<path d="M98 116 L138 116 L148 130 L138 136 L136 150 L100 150 L98 136 L88 130 Z" fill="#ff6b6b"/>' +
+        '<circle cx="118" cy="96" r="20" fill="' + skin + '"/>' +
+        '<path d="M98 92 Q100 74 118 74 Q136 74 138 92 Q128 82 118 84 Q108 82 98 92 Z" fill="#4a3426"/>' +
+        '<path d="M108 96 q3 -3 6 0 M122 96 q3 -3 6 0" fill="none" stroke="' + OUT + '" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<ellipse cx="118" cy="106" rx="4" ry="3" fill="' + OUT + '"/>' +
+        '<circle cx="106" cy="103" r="3.5" fill="#ff8a8a"/><circle cx="130" cy="103" r="3.5" fill="#ff8a8a"/>' +
+        '<g fill="#5ab8f5"><path d="M92 80 q-5 8 0 11 q5 -3 0 -11 z"/><path d="M146 84 q-5 8 0 11 q5 -3 0 -11 z"/>' +
+        '<path d="M142 104 q-4 7 0 9 q4 -2 0 -9 z"/><path d="M94 102 q-4 7 0 9 q4 -2 0 -9 z"/></g>';
     } else {
-      s += '<g fill="#e6f8ff" stroke="#9fd8f5" stroke-width="2"><ellipse cx="74" cy="90" rx="16" ry="5"/><ellipse cx="128" cy="92" rx="12" ry="4"/></g>' +
-        '<g fill="#cfefff"><polygon points="52,164 58,164 55,180"/><polygon points="78,164 86,164 82,184"/><polygon points="118,164 124,164 121,178"/><polygon points="142,164 150,164 146,182"/></g>' +
-        '<g stroke="#8fd6ff" stroke-width="3" stroke-linecap="round"><path d="M166 24 v28 M152 38 h28 M156 28 l20 20 M176 28 l-20 20"/></g>';
+      s += '<g fill="#8fa3b8"><circle cx="40" cy="36" r="16"/><circle cx="60" cy="30" r="20"/><circle cx="82" cy="38" r="14"/><rect x="40" y="36" width="42" height="16"/>' +
+        '<circle cx="150" cy="30" r="14"/><circle cx="168" cy="34" r="12"/><rect x="150" y="30" width="18" height="16"/></g>' +
+        '<path d="M6 166 Q100 154 194 166 L194 176 Q194 194 176 194 L24 194 Q6 194 6 176 Z" fill="#f4f8fc"/>' +
+        '<g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round">' +
+        '<path d="M14 76 q34 -10 60 0 q12 6 4 14"/><path d="M12 112 q26 -8 48 0 q10 5 2 12"/><path d="M150 78 q20 -6 36 2"/></g>' +
+        sparkle(30, 140, 6, '#fff') + sparkle(170, 116, 7, '#fff') + sparkle(160, 154, 5, '#fff') + sparkle(76, 60, 5, '#fff') +
+        // bạn nhỏ mặc áo ấm, quàng khăn, ôm người run rẩy
+        '<rect x="104" y="152" width="11" height="26" rx="4" fill="#3a4a6a"/><rect x="121" y="152" width="11" height="26" rx="4" fill="#3a4a6a"/>' +
+        '<path d="M94 116 L142 116 L148 156 L88 156 Z" fill="#3fa9f5"/>' +
+        '<ellipse cx="118" cy="134" rx="28" ry="9" fill="#2e86c9"/>' +
+        '<circle cx="92" cy="134" r="7" fill="#ff6b6b"/><circle cx="144" cy="134" r="7" fill="#ff6b6b"/>' +
+        '<circle cx="118" cy="96" r="20" fill="' + skin + '"/>' +
+        '<path d="M97 92 Q98 70 118 70 Q138 70 139 92 Z" fill="#ff6b6b"/><rect x="96" y="88" width="44" height="7" rx="3" fill="#fff"/>' +
+        '<circle cx="118" cy="68" r="6" fill="#fff"/>' +
+        '<rect x="98" y="112" width="40" height="9" rx="4" fill="#ffd23f"/><rect x="124" y="116" width="9" height="22" rx="3" fill="#ffd23f"/>' +
+        '<circle cx="111" cy="100" r="2.8" fill="' + OUT + '"/><circle cx="125" cy="100" r="2.8" fill="' + OUT + '"/>' +
+        '<path d="M110 108 l3 -2 l3 2 l3 -2 l3 2 l3 -2 l3 2" fill="none" stroke="' + OUT + '" stroke-width="2" stroke-linecap="round"/>' +
+        '<g fill="none" stroke="#4a6a8a" stroke-width="3" stroke-linecap="round">' +
+        '<path d="M80 112 q-6 8 0 16 M72 108 q-8 12 0 24"/><path d="M156 112 q6 8 0 16 M164 108 q8 12 0 24"/></g>';
     }
     return s;
   }
 
-  // Nóng – lạnh: cái ấm.
-  function kettle(hot) {
-    var s = '<path d="M70 82 Q100 34 130 82" fill="none" stroke="#5a5f6b" stroke-width="8" stroke-linecap="round"/>' +
-      '<path d="M140 124 L174 96 L180 104 L150 140 Z" fill="#c9d1dc"/>' +
-      '<path d="M54 170 Q38 116 72 84 L128 84 Q162 116 146 170 Z" fill="#c9d1dc"/>' +
-      '<path d="M45 136 L155 136 L152 150 L48 150 Z" fill="' + (hot ? '#ff6b6b' : '#3fa9f5') + '"/>' +
-      '<ellipse cx="100" cy="84" rx="30" ry="6" fill="#aeb7c4"/><circle cx="100" cy="76" r="6" fill="#5a5f6b"/>' +
-      '<rect x="48" y="168" width="104" height="8" rx="4" fill="#8a93a3"/>' +
-      '<path d="M66 110 Q62 130 66 150" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.5"/>';
-    if (hot) {
-      s += '<g fill="none" stroke="#aab3c0" stroke-width="5" stroke-linecap="round">' +
-        '<path d="M180 90 q-10 -12 0 -24 q10 -12 0 -24"/><path d="M164 80 q-8 -10 0 -20 q8 -10 0 -20"/></g>';
-    } else {
-      s += '<g fill="#e6f8ff" stroke="#9fd8f5" stroke-width="2"><ellipse cx="86" cy="104" rx="10" ry="6"/><ellipse cx="124" cy="120" rx="8" ry="5"/></g>' +
-        '<g fill="#cfefff"><polygon points="170,104 176,104 173,120"/><polygon points="60,170 66,170 63,186"/><polygon points="132,170 138,170 135,184"/></g>' +
-        '<g stroke="#8fd6ff" stroke-width="3" stroke-linecap="round"><path d="M30 30 v28 M16 44 h28 M20 34 l20 20 M40 34 l-20 20"/></g>';
-    }
-    return s;
+  // Nóng: nồi canh đang sôi trên bếp lửa.
+  function stoveFood() {
+    return '<rect x="26" y="182" width="148" height="10" rx="4" fill="#4a4f5a"/>' +
+      '<path d="M62 184 q-8 -14 4 -24 q2 10 8 6 q6 -12 0 -18 q18 8 12 36 z M106 184 q-10 -16 4 -28 q2 12 10 8 q4 -10 -2 -16 q22 10 12 36 z" fill="#ff9f1c"/>' +
+      '<path d="M68 184 q-2 -8 4 -12 q4 6 6 12 z M114 184 q-2 -9 5 -14 q4 7 6 14 z" fill="#ffe066"/>' +
+      '<rect x="22" y="96" width="26" height="10" rx="5" fill="#5a5f6b"/><rect x="152" y="96" width="26" height="10" rx="5" fill="#5a5f6b"/>' +
+      '<path d="M40 90 L160 90 L156 156 Q154 166 144 166 L56 166 Q46 166 44 156 Z" fill="#9aa5b5"/>' +
+      '<ellipse cx="100" cy="90" rx="62" ry="12" fill="#7f8a9b"/>' +
+      '<ellipse cx="100" cy="91" rx="54" ry="8" fill="#e8a04a"/>' +
+      '<g fill="#ff7b2e"><circle cx="80" cy="90" r="4"/><circle cx="112" cy="92" r="4"/></g>' +
+      '<g fill="#3dcc6b"><ellipse cx="96" cy="88" rx="5" ry="2.5"/><ellipse cx="126" cy="89" rx="5" ry="2.5"/></g>' +
+      '<g fill="none" stroke="#aab3c0" stroke-width="5" stroke-linecap="round">' +
+      '<path d="M76 70 q-10 -12 0 -24 q10 -12 0 -24"/><path d="M100 64 q-10 -12 0 -24 q10 -12 0 -24"/><path d="M124 70 q-10 -12 0 -24 q10 -12 0 -24"/></g>';
+  }
+
+  // Lạnh: cá đông lạnh trong ngăn đá, phủ băng.
+  function frozenFood() {
+    var fishShape = function (x, y) {
+      return '<path d="M' + (x + 40) + ' ' + y + ' l18 -12 v24 z" fill="#8aa0b8"/>' +
+        '<ellipse cx="' + x + '" cy="' + y + '" rx="44" ry="17" fill="#9fb3c8"/>' +
+        '<circle cx="' + (x - 28) + '" cy="' + (y - 4) + '" r="3.5" fill="#4a5a6a"/>';
+    };
+    return '<rect x="18" y="26" width="164" height="156" rx="14" fill="#dff3ff" stroke="#9fd8f5" stroke-width="4"/>' +
+      '<g fill="#fff"><polygon points="32,28 40,28 36,44"/><polygon points="58,28 66,28 62,50"/><polygon points="96,28 104,28 100,42"/>' +
+      '<polygon points="134,28 142,28 138,48"/><polygon points="162,28 170,28 166,40"/></g>' +
+      '<line x1="22" y1="150" x2="178" y2="150" stroke="#9fd8f5" stroke-width="4"/>' +
+      fishShape(92, 96) + fishShape(104, 128) +
+      '<rect x="40" y="70" width="130" height="78" rx="10" fill="#e6f8ff" opacity="0.55" stroke="#fff" stroke-width="3"/>' +
+      '<path d="M52 82 l16 0 M52 90 l8 0 M150 132 l-12 0" stroke="#fff" stroke-width="3" stroke-linecap="round"/>' +
+      '<g stroke="#5ab8f5" stroke-width="3" stroke-linecap="round"><path d="M44 158 v18 M35 167 h18 M38 161 l12 12 M50 161 l-12 12"/>' +
+      '<path d="M156 158 v18 M147 167 h18 M150 161 l12 12 M162 161 l-12 12"/></g>';
   }
 
   // Dày – mỏng: miếng bánh mì nằm (mặt trên + phần vỏ cạnh dày/mỏng).
@@ -730,7 +777,7 @@ var Art = (function () {
     rock: rock, brick: brick, pillow: pillow, teddy: teddy,
     dumbbell: dumbbell, elephant: elephant, feather: feather,
     shoe: shoe, carAge: carAge, dog: dog, bird: bird, plate: plate, hand: hand,
-    pot: pot, kettle: kettle, bread: bread, mattress: mattress,
+    weather: weather, stoveFood: stoveFood, frozenFood: frozenFood, bread: bread, mattress: mattress,
     hammer: hammer, yarn: yarn, truck: truck, leaf: leaf,
     scaled: scaled, svg: svg, compose: compose
   };

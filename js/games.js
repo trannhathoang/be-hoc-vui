@@ -71,10 +71,11 @@ var Games = (function () {
       draw: function (a) { return Art.hand(!a); } },
     { name: 'cốc nước', words: ['nóng', 'lạnh'], colors: [null],
       draw: function (a) { return Art.cup(a); } },
-    { name: 'cái nồi', words: ['nóng', 'lạnh'], colors: [null],
-      draw: function (a) { return Art.pot(a); } },
-    { name: 'cái ấm', words: ['nóng', 'lạnh'], colors: [null],
-      draw: function (a) { return Art.kettle(a); } },
+    // say: cách đọc tính từ cho cặp tranh này — "Bức tranh nào là trời nóng?"
+    { name: 'bức tranh', words: ['nóng', 'lạnh'], say: ['trời nóng', 'trời lạnh'], link: 'là ', colors: [null],
+      draw: function (a) { return Art.weather(a); } },
+    { name: 'thức ăn', words: ['nóng', 'lạnh'], colors: [null],
+      draw: function (a) { return a ? Art.stoveFood() : Art.frozenFood(); } },
     { name: 'quyển sách', words: ['dày', 'mỏng'], colors: [C.red, C.blue, C.green, C.purple],
       draw: function (a, c) { return Art.book(c, a); } },
     { name: 'miếng bánh mì', words: ['dày', 'mỏng'], colors: [null],
@@ -104,6 +105,8 @@ var Games = (function () {
   ];
 
   function categoryOf(item) { return item.words.join('-'); }
+  // Tính từ được đọc lên (mặc định chính là tính từ; tranh thời tiết đọc "trời nóng").
+  function spoken(item, i) { return (item.say || item.words)[i]; }
 
   // ---------- Bộ câu hỏi của trò 1 ----------
   // Mỗi câu hỏi = một cặp tranh + một tính từ (ví dụ cốc nước + "nóng"), nên mỗi cặp tranh
@@ -120,7 +123,7 @@ var Games = (function () {
   function wordOf(id) { return +id.split(':')[1]; }
   function catOf(id) { return categoryOf(OPPOSITES[itemOf(id)]); }
   // Câu hỏi bé nghe thấy: "vật" + "nhẹ" là cùng một câu dù tranh khác nhau.
-  function textOf(id) { var it = OPPOSITES[itemOf(id)]; return it.name + '|' + it.words[wordOf(id)]; }
+  function textOf(id) { var it = OPPOSITES[itemOf(id)]; return it.name + '|' + spoken(it, wordOf(id)); }
 
   function loadDeck() {
     try {
@@ -319,7 +322,7 @@ var Games = (function () {
       var id = nextQuestion();
       var item = OPPOSITES[itemOf(id)];
       var askFirst = wordOf(id) === 0;
-      var word = item.words[askFirst ? 0 : 1];
+      var word = spoken(item, askFirst ? 0 : 1);
       var color = pick(item.colors);
       var right = { svg: item.draw(askFirst, color), correct: true };
       var wrongOpt = { svg: item.draw(!askFirst, color), correct: false };
@@ -329,7 +332,7 @@ var Games = (function () {
         id: id,
         item: item,
         word: word,
-        otherWord: item.words[askFirst ? 1 : 0],
+        otherWord: spoken(item, askFirst ? 1 : 0),
         kind: 'pick1',
         text: speech,
         speech: speech,
@@ -487,7 +490,7 @@ var Games = (function () {
 
     OPPOSITES.forEach(function (item) {
       [0, 1].forEach(function (i) {
-        var w = item.words[i], w2 = item.words[1 - i];
+        var w = spoken(item, i), w2 = spoken(item, 1 - i);
         each(Q_OPPOSITE, [item.name, w, item.link || '']);
         each(PRAISE_OPPOSITE, [item.name, w]);
         each(RETRY_OPPOSITE, [item.name, w, w2]);
